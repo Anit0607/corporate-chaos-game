@@ -1,0 +1,26 @@
+{
+  "name": "corporate-chaos-game",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc --noEmit --pretty false",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "description": "Corporate Chaos: Survive the Shift — a desktop-first workplace comedy arcade game.",
+  "license": "MIT",
+  "dependencies": {
+    "phaser": "^4.2.1",
+    "posthog-js": "^1.414.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
+  }
+}
