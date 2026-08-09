@@ -13,6 +13,11 @@ export class BootScene extends Phaser.Scene {
     this.createMeetingTexture();
     this.createKpiTexture();
     this.createManagerTexture();
+    this.createHrTexture();
+    this.createClientTexture();
+    this.createDeadlineTexture();
+    this.createReviewTexture();
+    this.createDirectorTexture();
     this.createProjectileTexture();
     this.createCoinTexture();
     this.createOfficeTextures();
@@ -83,6 +88,65 @@ export class BootScene extends Phaser.Scene {
     g.lineStyle(3, 0x061126).beginPath().moveTo(20, 17).lineTo(27, 15).moveTo(37, 15).lineTo(44, 17).strokePath();
     g.fillStyle(0x061126).fillCircle(24, 21, 2).fillCircle(40, 21, 2).fillRoundedRect(26, 27, 13, 3, 1);
     g.generateTexture('hazard-manager', 66, 82);
+    g.destroy();
+  }
+
+  private createHrTexture(): void {
+    const g = this.graphics();
+    g.fillStyle(0x061126, 0.25).fillEllipse(28, 61, 42, 8);
+    g.lineStyle(4, 0x061126).fillStyle(0x9ce65c).fillRoundedRect(7, 21, 42, 38, 8).strokeRoundedRect(7, 21, 42, 38, 8);
+    g.fillStyle(0xfff4dc).fillCircle(28, 15, 13);
+    g.fillStyle(0x172b4d).fillEllipse(28, 8, 26, 12);
+    g.fillStyle(0xffffff).fillRoundedRect(16, 29, 25, 22, 3);
+    g.fillStyle(0xf33d53).fillRect(21, 34, 15, 3).fillRect(21, 40, 12, 3);
+    g.generateTexture('hazard-hr', 56, 66);
+    g.destroy();
+  }
+
+  private createClientTexture(): void {
+    const g = this.graphics();
+    g.fillStyle(0x061126, 0.24).fillEllipse(29, 57, 42, 8);
+    g.lineStyle(5, 0x061126).fillStyle(0xff9f43).fillRoundedRect(8, 5, 42, 50, 10).strokeRoundedRect(8, 5, 42, 50, 10);
+    g.fillStyle(0x172b4d).fillRoundedRect(14, 12, 30, 31, 5);
+    g.fillStyle(0x9ce65c).fillCircle(29, 49, 4);
+    g.lineStyle(4, 0xfff4dc).beginPath().moveTo(20, 20).lineTo(24, 17).lineTo(36, 30).lineTo(33, 34).strokePath();
+    g.generateTexture('hazard-client', 58, 64);
+    g.destroy();
+  }
+
+  private createDeadlineTexture(): void {
+    const g = this.graphics();
+    g.fillStyle(0x061126, 0.25).fillEllipse(30, 61, 45, 8);
+    g.lineStyle(5, 0x061126).fillStyle(0xff4d8d).fillCircle(30, 31, 25).strokeCircle(30, 31, 25);
+    g.fillStyle(0xfff4dc).fillCircle(30, 31, 17);
+    g.lineStyle(4, 0x061126).beginPath().moveTo(30, 31).lineTo(30, 19).moveTo(30, 31).lineTo(41, 36).strokePath();
+    g.fillStyle(0x061126).fillRoundedRect(23, 1, 14, 7, 3);
+    g.generateTexture('hazard-deadline', 62, 66);
+    g.destroy();
+  }
+
+  private createReviewTexture(): void {
+    const g = this.graphics();
+    g.fillStyle(0x061126, 0.25).fillEllipse(28, 61, 42, 8);
+    g.lineStyle(4, 0x061126).fillStyle(0xffffff).fillRoundedRect(6, 3, 44, 56, 6).strokeRoundedRect(6, 3, 44, 56, 6);
+    g.fillStyle(0x5ce1e6).fillRect(13, 11, 30, 7);
+    g.fillStyle(0xffbd45).fillTriangle(28, 23, 32, 32, 42, 33).fillTriangle(42, 33, 34, 39, 36, 50).fillTriangle(36, 50, 28, 44, 20, 50).fillTriangle(20, 50, 22, 39, 14, 33).fillTriangle(14, 33, 24, 32, 28, 23);
+    g.generateTexture('hazard-review', 56, 66);
+    g.destroy();
+  }
+
+  private createDirectorTexture(): void {
+    const g = this.graphics();
+    g.fillStyle(0x061126, 0.35).fillEllipse(55, 105, 88, 15);
+    g.lineStyle(7, 0x061126).fillStyle(0x151d36).fillRoundedRect(12, 42, 86, 60, 14).strokeRoundedRect(12, 42, 86, 60, 14);
+    g.fillStyle(0xfff4dc).fillTriangle(28, 46, 82, 46, 55, 75);
+    g.fillStyle(0xf33d53).fillTriangle(47, 51, 63, 51, 55, 87);
+    g.lineStyle(7, 0x061126).fillStyle(0xc9825e).fillCircle(55, 27, 28).strokeCircle(55, 27, 28);
+    g.fillStyle(0x10162a).fillRect(27, 5, 56, 18).fillTriangle(28, 20, 34, 1, 47, 22);
+    g.fillStyle(0xffffff).fillRoundedRect(28, 23, 22, 11, 4).fillRoundedRect(60, 23, 22, 11, 4);
+    g.lineStyle(4, 0x061126).strokeRoundedRect(28, 23, 22, 11, 4).strokeRoundedRect(60, 23, 22, 11, 4).lineBetween(50, 28, 60, 28);
+    g.fillStyle(0x061126).fillRoundedRect(43, 37, 24, 4, 2);
+    g.generateTexture('hazard-director', 112, 114);
     g.destroy();
   }
 

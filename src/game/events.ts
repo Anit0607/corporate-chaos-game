@@ -1,10 +1,15 @@
-export type CharacterId = 'red-recruit' | 'blue-recruit';
+import type { CharacterId } from './content/characters';
+import type { CorporateEventDefinition } from './content/corporateEvents';
+import type { PlayerProfile } from './progression/ProfileStore';
+
+export type { CharacterId } from './content/characters';
 
 export interface HudSnapshot {
   clock: string;
   elapsed: number;
   duration: number;
   energy: number;
+  maxEnergy: number;
   score: number;
   runCoins: number;
   walletCoins: number;
@@ -14,6 +19,14 @@ export interface HudSnapshot {
   dashReady: boolean;
   multiplier: number;
   waveLabel: string;
+  abilityName: string;
+  abilityReady: boolean;
+  activeEvent: string | null;
+  bossActive: boolean;
+  bossHealth: number;
+  bossMaxHealth: number;
+  bossPhase: number;
+  seed: number;
 }
 
 export interface RunResult {
@@ -25,6 +38,11 @@ export interface RunResult {
   rank: string;
   hazardsCleared: number;
   perksChosen: string[];
+  character: CharacterId;
+  bossDefeated: boolean;
+  seed: number;
+  highScore: number;
+  newAchievements: string[];
 }
 
 export type GameEventMap = {
@@ -37,10 +55,14 @@ export type GameEventMap = {
   'ui:menu': undefined;
   'ui:perk-selected': string;
   'ui:mute': boolean;
+  'ui:move': { x: number; y: number };
+  'ui:dash': undefined;
   'game:character-select': undefined;
   'game:briefing': CharacterId;
   'game:hud': HudSnapshot;
   'game:perk-offer': string[];
+  'game:corporate-event': CorporateEventDefinition;
+  'game:profile': PlayerProfile;
   'game:pause': boolean;
   'game:result': RunResult;
   'game:toast': string;

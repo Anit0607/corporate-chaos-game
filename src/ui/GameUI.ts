@@ -1,6 +1,9 @@
 import { soundboard } from '../audio/Soundboard';
+import { CHARACTERS, type CharacterId } from '../game/content/characters';
+import type { CorporateEventDefinition } from '../game/content/corporateEvents';
 import { PERKS } from '../game/content/perks';
 import { gameBus, type HudSnapshot, type RunResult } from '../game/events';
+import { ACHIEVEMENTS, profileStore, type PlayerProfile } from '../game/progression/ProfileStore';
 
 const formatScore = (value: number) => Math.round(value).toLocaleString('en-US');
 
@@ -8,6 +11,8 @@ export class GameUI {
   private readonly root: HTMLElement;
   private readonly screenIds = ['menu-screen', 'character-screen', 'briefing-screen', 'result-screen'];
   private toastTimer = 0;
+  private eventTimer = 0;
+  private readonly touchDirections = new Set<string>();
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -16,6 +21,7 @@ export class GameUI {
     this.bindGameEvents();
     this.showOnly('menu-screen');
     this.updateMuteButton(soundboard.isMuted);
+    this.updateProfile(profileStore.load());
   }
 
   private template(): string {
@@ -39,7 +45,13 @@ export class GameUI {
               <button id="start-button" class="button button-primary" type="button">CLOCK IN</button>
               <button id="how-button" class="button button-ghost" type="button">SHIFT BRIEF</button>
             </div>
-            <p class="desktop-note">DESKTOP TEST BUILD · WASD / ARROWS · SPACE TO DASH</p>
+            <p class="desktop-note">V2 DEVELOPMENT BUILD · DESKTOP + LANDSCAPE TOUCH</p>
+            <div class="profile-strip" aria-label="Employee record">
+              <span>RUNS <b id="profile-runs">0</b></span>
+              <span>WINS <b id="profile-wins">0</b></span>
+              <span>HIGH SCORE <b id="profile-high-score">0</b></span>
+              <span>BADGES <b id="profile-badges">0</b></span>
+            </div>
           </div>
           <aside id="how-panel" class="how-panel" aria-hidden="true">
             <button id="how-close" class="panel-close" type="button" aria-label="Close instructions">×</button>
@@ -49,7 +61,9 @@ export class GameUI {
               <li><strong>Move</strong><span>WASD or arrow keys</span></li>
               <li><strong>Dodge</strong><span>Emails, meetings and management</span></li>
               <li><strong>Dash</strong><span>Space bar when the indicator is ready</span></li>
-              <li><strong>Upgrade</strong><span>Pick one perk every 45 seconds</span></li>
+              <li><strong>Upgrade</strong><span>Build a different survival strategy every run</span></li>
+              <li><strong>Escalate</strong><span>React to random corporate events</span></li>
+              <li><strong>Clock out</strong><span>Defeat the Regional Director at 5 PM</span></li>
             </ol>
             <p>Paperclips fire automatically at the nearest corporate problem. Your only real task is survival.</p>
           </aside>
@@ -59,22 +73,10 @@ export class GameUI {
           <div class="panel character-panel">
             <p class="eyebrow">EMPLOYEE ONBOARDING // STEP 01</p>
             <h2 id="character-title">Choose your recruit</h2>
-            <p class="panel-copy">Same abilities. Different energy. Pick the person you trust with an impossible inbox.</p>
+            <p class="panel-copy">Each recruit changes speed, survivability, attacks and signature ability. Choose a real playstyle.</p>
             <div class="character-grid">
-              <button class="character-card character-red" data-character="red-recruit" type="button">
-                <span class="avatar avatar-red" aria-hidden="true"><i class="avatar-hair"></i><i class="avatar-face"></i><i class="avatar-body"></i><i class="avatar-tie"></i></span>
-                <span class="character-number">EMPLOYEE 001</span>
-                <strong>THE FIRESTARTER</strong>
-                <small>Red suit · reckless optimism</small>
-                <span class="select-label">SELECT RECRUIT</span>
-              </button>
-              <button class="character-card character-blue" data-character="blue-recruit" type="button">
-                <span class="avatar avatar-blue" aria-hidden="true"><i class="avatar-hair"></i><i class="avatar-face"></i><i class="avatar-body"></i><i class="avatar-tie"></i></span>
-                <span class="character-number">EMPLOYEE 002</span>
-                <strong>THE COOL HEAD</strong>
-                <small>Blue suit · strategic sarcasm</small>
-                <span class="select-label">SELECT RECRUIT</span>
-              </button>
+              ${this.characterCard('red-recruit', 'character-red', 'avatar-red')}
+              ${this.characterCard('blue-recruit', 'character-blue', 'avatar-blue')}
             </div>
           </div>
         </section>
@@ -85,8 +87,8 @@ export class GameUI {
             <div>
               <p class="eyebrow">RECEPTION // 08:59 AM</p>
               <h2 id="briefing-title">Welcome to Chaos Corp.</h2>
-              <p>HR misplaced your job description, so just keep moving. Survive until 5 PM and we may remember your name.</p>
-              <div class="briefing-tags"><span>Avoid urgent requests</span><span>Collect Chaos Coins</span><span>Choose upgrades</span></div>
+              <p id="briefing-copy">HR misplaced your job description, so just keep moving. Survive until 5 PM and we may remember your name.</p>
+              <div class="briefing-tags"><span>Avoid urgent requests</span><span>Collect Chaos Coins</span><span id="briefing-ability">Use your signature ability</span></div>
               <button id="briefing-button" class="button button-primary" type="button">ENTER THE OFFICE</button>
             </div>
           </div>
@@ -109,8 +111,29 @@ export class GameUI {
           </div>
           <div id="multiplier-chip" class="multiplier-chip">CHAOS MODE · <b>2×</b></div>
           <div id="dash-chip" class="dash-chip is-ready">SPACE · DASH READY</div>
+          <div id="ability-chip" class="ability-chip"><span>SIGNATURE</span><b>DEADLINE MOMENTUM</b></div>
+          <div id="boss-hud" class="boss-hud" aria-label="Regional Director health">
+            <div><span>THE REGIONAL DIRECTOR</span><b id="boss-phase">PHASE 1</b></div>
+            <div class="boss-meter"><i id="boss-fill"></i></div>
+          </div>
           <button id="pause-button" class="pause-button" type="button" aria-label="Pause game">II</button>
         </section>
+
+        <aside id="event-banner" class="event-banner" aria-live="assertive">
+          <span id="event-subtitle">CORPORATE EVENT</span>
+          <strong id="event-title">REPLY-ALL STORM</strong>
+          <p id="event-description"></p>
+        </aside>
+
+        <nav id="touch-controls" class="touch-controls" aria-label="Touch controls">
+          <div class="touch-pad">
+            <button data-move="up" type="button" aria-label="Move up">▲</button>
+            <button data-move="left" type="button" aria-label="Move left">◀</button>
+            <button data-move="right" type="button" aria-label="Move right">▶</button>
+            <button data-move="down" type="button" aria-label="Move down">▼</button>
+          </div>
+          <button id="touch-dash" class="touch-dash" type="button">DASH</button>
+        </nav>
 
         <section id="perk-modal" class="modal" aria-labelledby="perk-title">
           <div class="modal-card perk-card">
@@ -140,7 +163,10 @@ export class GameUI {
               <div><span>CHAOS CLEARED</span><strong id="result-cleared">0</strong></div>
               <div><span>COINS EARNED</span><strong id="result-coins">0</strong></div>
               <div><span>WALLET</span><strong id="result-wallet">0</strong></div>
+              <div><span>HIGH SCORE</span><strong id="result-high-score">0</strong></div>
+              <div><span>FINAL REVIEW</span><strong id="result-boss">PENDING</strong></div>
             </div>
+            <div id="achievement-unlocks" class="achievement-unlocks" aria-live="polite"></div>
             <div class="result-actions">
               <button id="replay-button" class="button button-primary" type="button">WORK ANOTHER SHIFT</button>
               <button id="result-menu-button" class="button button-ghost" type="button">MAIN MENU</button>
@@ -151,6 +177,20 @@ export class GameUI {
         <div id="toast" class="toast" role="status"></div>
       </main>
     `;
+  }
+
+  private characterCard(id: CharacterId, cardClass: string, avatarClass: string): string {
+    const character = CHARACTERS[id];
+    return `<button class="character-card ${cardClass}" data-character="${id}" type="button" style="--character:${character.accent}">
+      <span class="avatar ${avatarClass}" aria-hidden="true"><i class="avatar-hair"></i><i class="avatar-face"></i><i class="avatar-body"></i><i class="avatar-tie"></i></span>
+      <span class="character-number">${character.employeeNumber}</span>
+      <strong>${character.name}</strong>
+      <small>${character.role} · ${character.personality}</small>
+      <span class="character-description">${character.description}</span>
+      <span class="ability-card"><b>${character.ability.name}</b>${character.ability.description}</span>
+      <span class="character-stats"><i>ENERGY ${character.stats.maxEnergy}</i><i>MOVE ${Math.round(character.stats.moveSpeed * 100)}</i><i>FIRE ${Math.round(character.stats.fireRate * 100)}</i></span>
+      <span class="select-label">SELECT RECRUIT</span>
+    </button>`;
   }
 
   private bindControls(): void {
@@ -164,6 +204,7 @@ export class GameUI {
       button.addEventListener('click', () => {
         const character = button.dataset.character as 'red-recruit' | 'blue-recruit';
         gameBus.emit('ui:character', character);
+        this.updateBriefing(character);
         this.showOnly('briefing-screen');
       });
     });
@@ -186,6 +227,28 @@ export class GameUI {
       this.updateMuteButton(soundboard.isMuted);
       gameBus.emit('ui:mute', soundboard.isMuted);
     });
+
+    this.root.querySelectorAll<HTMLButtonElement>('[data-move]').forEach((button) => {
+      const direction = button.dataset.move!;
+      const press = (event: PointerEvent) => {
+        event.preventDefault();
+        this.touchDirections.add(direction);
+        this.emitTouchVector();
+      };
+      const release = (event: PointerEvent) => {
+        event.preventDefault();
+        this.touchDirections.delete(direction);
+        this.emitTouchVector();
+      };
+      button.addEventListener('pointerdown', press);
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('pointerleave', release);
+    });
+    this.byId('touch-dash').addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      gameBus.emit('ui:dash', undefined);
+    });
   }
 
   private bindGameEvents(): void {
@@ -193,6 +256,8 @@ export class GameUI {
     gameBus.on('game:briefing', () => this.showOnly('briefing-screen'));
     gameBus.on('game:hud', (snapshot) => this.updateHud(snapshot));
     gameBus.on('game:perk-offer', (ids) => this.showPerks(ids));
+    gameBus.on('game:corporate-event', (event) => this.showCorporateEvent(event));
+    gameBus.on('game:profile', (profile) => this.updateProfile(profile));
     gameBus.on('game:pause', (paused) => this.byId('pause-modal').classList.toggle('is-visible', paused));
     gameBus.on('game:result', (result) => this.showResult(result));
     gameBus.on('game:toast', (message) => this.toast(message));
@@ -201,6 +266,8 @@ export class GameUI {
     gameBus.on('game:run-started', () => {
       this.hideScreens();
       this.byId('hud').classList.add('is-visible');
+      this.byId('event-banner').classList.remove('is-visible');
+      this.byId('boss-hud').classList.remove('is-visible');
     });
   }
 
@@ -210,7 +277,7 @@ export class GameUI {
     this.byId('hud-score').textContent = formatScore(snapshot.score);
     this.byId('hud-coins').textContent = formatScore(snapshot.runCoins);
     this.byId('energy-value').textContent = String(Math.round(snapshot.energy));
-    this.byId('energy-fill').style.width = `${Math.max(0, Math.min(100, snapshot.energy))}%`;
+    this.byId('energy-fill').style.width = `${Math.max(0, Math.min(100, (snapshot.energy / snapshot.maxEnergy) * 100))}%`;
     this.byId('chaos-fill').style.width = `${snapshot.chaos}%`;
     this.byId('chaos-value').textContent = snapshot.chaosActive ? `${snapshot.chaosSeconds.toFixed(1)}s` : `${Math.round(snapshot.chaos)}%`;
     this.byId('chaos-wrap').classList.toggle('is-active', snapshot.chaosActive);
@@ -218,6 +285,12 @@ export class GameUI {
     this.byId('multiplier-chip').querySelector('b')!.textContent = `${snapshot.multiplier.toFixed(snapshot.multiplier % 1 ? 1 : 0)}×`;
     this.byId('dash-chip').classList.toggle('is-ready', snapshot.dashReady);
     this.byId('dash-chip').textContent = snapshot.dashReady ? 'SPACE · DASH READY' : 'DASH · RECHARGING';
+    this.byId('ability-chip').classList.toggle('is-ready', snapshot.abilityReady);
+    this.byId('ability-chip').querySelector('b')!.textContent = snapshot.abilityName.toUpperCase();
+    const bossHud = this.byId('boss-hud');
+    bossHud.classList.toggle('is-visible', snapshot.bossActive);
+    this.byId('boss-fill').style.width = `${snapshot.bossMaxHealth > 0 ? (snapshot.bossHealth / snapshot.bossMaxHealth) * 100 : 0}%`;
+    this.byId('boss-phase').textContent = `PHASE ${snapshot.bossPhase || 1}`;
   }
 
   private showPerks(ids: string[]): void {
@@ -243,6 +316,30 @@ export class GameUI {
     this.byId('perk-modal').classList.add('is-visible');
   }
 
+  private showCorporateEvent(event: CorporateEventDefinition): void {
+    window.clearTimeout(this.eventTimer);
+    const banner = this.byId('event-banner');
+    banner.style.setProperty('--event-accent', event.accent);
+    this.byId('event-subtitle').textContent = event.subtitle.toUpperCase();
+    this.byId('event-title').textContent = event.title;
+    this.byId('event-description').textContent = event.description;
+    banner.classList.add('is-visible');
+    this.eventTimer = window.setTimeout(() => banner.classList.remove('is-visible'), Math.min(6200, event.duration * 1000));
+  }
+
+  private updateProfile(profile: PlayerProfile): void {
+    this.byId('profile-runs').textContent = formatScore(profile.runs);
+    this.byId('profile-wins').textContent = formatScore(profile.wins);
+    this.byId('profile-high-score').textContent = formatScore(profile.highScore);
+    this.byId('profile-badges').textContent = formatScore(profile.achievements.length);
+  }
+
+  private updateBriefing(id: CharacterId): void {
+    const character = CHARACTERS[id];
+    this.byId('briefing-copy').textContent = `${character.personality} has been approved as a survival strategy. ${character.ability.description}`;
+    this.byId('briefing-ability').textContent = character.ability.name;
+  }
+
   private showResult(result: RunResult): void {
     this.byId('hud').classList.remove('is-visible');
     this.byId('pause-modal').classList.remove('is-visible');
@@ -254,6 +351,12 @@ export class GameUI {
     this.byId('result-cleared').textContent = formatScore(result.hazardsCleared);
     this.byId('result-coins').textContent = `+${formatScore(result.runCoins)}`;
     this.byId('result-wallet').textContent = formatScore(result.walletCoins);
+    this.byId('result-high-score').textContent = formatScore(result.highScore);
+    this.byId('result-boss').textContent = result.bossDefeated ? 'DIRECTOR DEFEATED' : 'PENDING';
+    const unlocks = this.byId('achievement-unlocks');
+    unlocks.innerHTML = result.newAchievements.length
+      ? `<p>NEW EMPLOYEE BADGES</p>${result.newAchievements.map((id) => `<span><b>${ACHIEVEMENTS[id].name}</b>${ACHIEVEMENTS[id].description}</span>`).join('')}`
+      : '';
     this.showOnly('result-screen');
   }
 
@@ -263,6 +366,10 @@ export class GameUI {
       this.byId('hud').classList.remove('is-visible');
       this.byId('pause-modal').classList.remove('is-visible');
       this.byId('perk-modal').classList.remove('is-visible');
+      this.byId('event-banner').classList.remove('is-visible');
+      this.byId('boss-hud').classList.remove('is-visible');
+      this.touchDirections.clear();
+      this.emitTouchVector();
     }
   }
 
@@ -282,6 +389,13 @@ export class GameUI {
     toast.textContent = message;
     toast.classList.add('is-visible');
     this.toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 1900);
+  }
+
+  private emitTouchVector(): void {
+    gameBus.emit('ui:move', {
+      x: Number(this.touchDirections.has('right')) - Number(this.touchDirections.has('left')),
+      y: Number(this.touchDirections.has('down')) - Number(this.touchDirections.has('up')),
+    });
   }
 
   private updateMuteButton(muted: boolean): void {
