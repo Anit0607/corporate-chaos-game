@@ -1092,7 +1092,7 @@ button:focus-visible {
 
 @media (max-height: 680px) {
   .title-lockup { transform: scale(0.87); transform-origin: left bottom; }
-  .character-panel { transform: scale(0.9); }
+  .character-panel { max-height: calc(100vh - 24px); overflow: auto; transform: none; }
   .perk-card { transform: scale(0.9); }
 }
 
@@ -1124,7 +1124,7 @@ button:focus-visible {
   .menu-topbar { inset: 18px 18px auto; }
   .title-lockup { width: min(68vw, 620px); }
   .profile-strip { display: none; }
-  .character-panel { max-height: calc(100vh - 28px); overflow: auto; padding: 24px; }
+  .character-panel { max-height: calc(100vh - 28px); overflow: auto; padding: 24px; transform: none; }
   .character-card { grid-template-columns: 104px 1fr; min-height: 300px; padding: 18px; }
   .avatar { width: 92px; transform: scale(0.78); transform-origin: top center; }
   .character-description { font-size: 10px; }

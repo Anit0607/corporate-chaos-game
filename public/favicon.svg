@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Corporate Chaos">
+  <rect width="64" height="64" rx="12" fill="#071328"/>
+  <path d="M13 16h38v8H13zm0 13h38v19H13z" fill="#27d9ff" opacity=".92"/>
+  <path d="M24 25h9l-5 8h8L24 50l4-12h-8z" fill="#ff4d8d"/>
+  <path d="M39 33h8v9h-8z" fill="#9ce65c"/>
+</svg>

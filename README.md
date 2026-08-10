@@ -1,16 +1,19 @@
 # Corporate Chaos: Survive the Shift
 
-A free desktop-browser workplace-comedy arcade game. Survive one absurd workday, dodge corporate hazards, choose questionable upgrades, trigger Chaos Mode, and make it to 5 PM.
+A free workplace-comedy arcade game for desktop browsers and landscape touch devices. Survive one absurd workday, build a questionable career strategy, react to random corporate policy changes, and defeat the Regional Director before clocking out.
 
-## Phase 1 scope
+## V2 development build
 
-- One polished 6-minute office survival run
-- Red or blue recruit selection
-- Keyboard movement and dash
+- One replayable six-minute shift with a seeded event schedule
+- Two meaningfully different recruits with unique stats and signature abilities
+- Keyboard, arrow-key and landscape touch movement with dash
 - Automatic paperclip attacks
-- Escalating emails, meetings, KPI forms, and micromanagers
+- Eight escalating hazards with distinct behavior and readable telegraphs
+- Five random corporate events that alter pressure, movement, damage or attacks
 - Six upgrade types and a recurring three-choice perk draft
+- A four-phase 5 PM boss encounter against the Regional Director
 - Energy, score, Chaos Mode, earned Chaos Coins, win/failure, and replay
+- Persistent high score, run/win history and achievement badges
 - Anonymous provider-neutral analytics
 - No login, payments, advertisements, multiplayer, or custom backend
 
@@ -23,6 +26,8 @@ A free desktop-browser workplace-comedy arcade game. Survive one absurd workday,
 | Pause | `Escape` |
 | Menus | Mouse or keyboard focus |
 
+Touch devices receive an on-screen direction pad and dash control in landscape layouts.
+
 ## Local development
 
 Requirements: Node.js 22+ and pnpm 11+.
@@ -34,7 +39,7 @@ pnpm dev
 
 Open `http://localhost:5173`.
 
-Use `?duration=45` for a short test shift and `?debug=1` for Arcade Physics debug rendering.
+Use `?duration=60&seed=20260810` for a short reproducible V2 shift and `?debug=1` for Arcade Physics debug rendering.
 
 ## Verification
 
@@ -44,16 +49,27 @@ pnpm test
 pnpm build
 ```
 
+For the Chrome/Edge menu-to-boss smoke run, start Vite on the QA port and run the browser suite in a second terminal:
+
+```bash
+pnpm dev -- --host 127.0.0.1 --port 4173
+pnpm test:browser
+```
+
 ## Architecture
 
 - `src/game/simulation`: deterministic game rules and scoring
-- `src/game/content`: authored perk data
+- `src/game/content`: data-driven characters, hazards, events and perks
+- `src/game/progression`: local achievement and high-score profile
 - `src/game/analytics`: local-first analytics adapter with optional PostHog transport
 - `src/phaser/scenes`: Phaser boot, rendering, physics, input, and effects
+- `src/phaser/systems`: player control, effects and office-arena presentation adapters
 - `src/ui`: DOM menus, HUD, overlays, results, and accessibility surfaces
 - `src/audio`: lightweight original Web Audio cues
 
-Phaser scenes are presentation adapters. Saveable state, scoring, clocks, difficulty, and progression live in the simulation layer.
+Phaser scenes are presentation adapters. Saveable state, scoring, clocks, seeded events, boss progression and run rules live in the simulation layer.
+
+The pre-V2 repository is preserved by the annotated `v0.1.0-baseline` Git tag. See `docs/V2_IMPLEMENTATION_STATUS.md` for the blueprint comparison and remaining tuning work.
 
 ## Analytics
 

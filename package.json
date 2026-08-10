@@ -1,6 +1,6 @@
 {
   "name": "corporate-chaos-game",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
   "scripts": {
@@ -9,9 +9,10 @@
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit --pretty false",
     "test": "vitest run",
+    "test:browser": "node scripts/browser-smoke.mjs",
     "test:watch": "vitest"
   },
-  "description": "Corporate Chaos: Survive the Shift — a desktop-first workplace comedy arcade game.",
+  "description": "Corporate Chaos V2: a replayable workplace-comedy survival game with distinct recruits, corporate events and a final boss.",
   "license": "MIT",
   "dependencies": {
     "phaser": "^4.2.1",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "playwright-core": "^1.62.1",
     "typescript": "^7.0.2",
     "vite": "^8.2.1",
     "vitest": "^4.1.10"

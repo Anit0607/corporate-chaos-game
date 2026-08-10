@@ -17,6 +17,7 @@ export class PlayerController {
   private readyAt = 0;
   private invulnerableUntil = 0;
   private frozenUntil = 0;
+  private frozenVisual = false;
   readonly facing = new Phaser.Math.Vector2(1, 0);
 
   constructor(
@@ -41,6 +42,7 @@ export class PlayerController {
     this.readyAt = time + 800;
     this.invulnerableUntil = 0;
     this.frozenUntil = 0;
+    this.frozenVisual = false;
     this.facing.set(1, 0);
   }
 
@@ -82,9 +84,14 @@ export class PlayerController {
 
     if (time < this.frozenUntil) {
       this.sprite.setVelocity(0).setTint(0x8de9ff).setScale(0.96);
+      this.frozenVisual = true;
       return { dashStarted: false, moving: false };
     }
-    this.sprite.clearTint().setAlpha(1);
+    if (this.frozenVisual) {
+      this.sprite.clearTint();
+      this.frozenVisual = false;
+    }
+    this.sprite.setAlpha(1);
 
     const keyboardX = Number(this.keys.right.isDown || this.cursors.right.isDown) - Number(this.keys.left.isDown || this.cursors.left.isDown);
     const keyboardY = Number(this.keys.down.isDown || this.cursors.down.isDown) - Number(this.keys.up.isDown || this.cursors.up.isDown);
