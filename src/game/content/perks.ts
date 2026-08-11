@@ -18,7 +18,7 @@ export const PERKS: Record<string, PerkDefinition> = {
     id: 'reply',
     name: 'Reply-All Blast',
     kicker: 'Send faster',
-    description: '+18% firing rate and stronger paperclip projectiles.',
+    description: '+18% firing rate and +1 paperclip damage per level.',
     accent: '#27d9ff',
   },
   shield: {

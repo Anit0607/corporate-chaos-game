@@ -23,6 +23,18 @@ export interface BossDamageResult {
   phase: number;
 }
 
+export interface GameplayModifiers {
+  moveSpeedMultiplier: number;
+  fireDelayMultiplier: number;
+  projectileDamageBonus: number;
+  damageTakenMultiplier: number;
+  dashDurationBonusMs: number;
+  dashCooldownMultiplier: number;
+  projectilePierce: number;
+  pickupRadiusBonus: number;
+  scoreMultiplier: number;
+}
+
 export class ShiftSimulation {
   readonly duration: number;
   readonly character: CharacterId;
@@ -124,9 +136,8 @@ export class ShiftSimulation {
       return 0;
     }
 
-    const perkReduction = Math.min(0.65, this.perkLevel('shield') * 0.18);
     const eventMultiplier = this.activeEvent?.damageMultiplier ?? 1;
-    const applied = Math.max(1, Math.round(amount * character.stats.incomingDamage * eventMultiplier * (1 - perkReduction)));
+    const applied = Math.max(1, Math.round(amount * character.stats.incomingDamage * eventMultiplier * this.gameplayModifiers.damageTakenMultiplier));
     this.energy = Math.max(0, this.energy - applied);
     return applied;
   }
@@ -153,7 +164,25 @@ export class ShiftSimulation {
   }
 
   get scoreMultiplier(): number {
-    return (this.chaosSeconds > 0 ? 2 : 1) * (1 + this.perkLevel('printer') * 0.2);
+    return (this.chaosSeconds > 0 ? 2 : 1) * this.gameplayModifiers.scoreMultiplier;
+  }
+
+  get gameplayModifiers(): GameplayModifiers {
+    const replyLevel = this.perkLevel('reply');
+    const shieldLevel = this.perkLevel('shield');
+    const escapeLevel = this.perkLevel('escape');
+    const printerLevel = this.perkLevel('printer');
+    return {
+      moveSpeedMultiplier: 1 + this.perkLevel('coffee') * 0.14,
+      fireDelayMultiplier: Math.max(0.25, 1 - replyLevel * 0.18),
+      projectileDamageBonus: replyLevel,
+      damageTakenMultiplier: Math.max(0.35, 1 - shieldLevel * 0.18),
+      dashDurationBonusMs: escapeLevel * 35,
+      dashCooldownMultiplier: Math.max(0.2, 1 - escapeLevel * 0.22),
+      projectilePierce: printerLevel,
+      pickupRadiusBonus: printerLevel * 25,
+      scoreMultiplier: 1 + printerLevel * 0.2,
+    };
   }
 
   get activeAttackMultiplier(): number {
@@ -251,6 +280,7 @@ export class ShiftSimulation {
   toHud(walletCoins: number, dashReady: boolean): HudSnapshot {
     const character = characterById(this.character);
     return {
+      character: this.character, perks: [...this.perks.keys()],
       clock: this.clockLabel(), elapsed: this.elapsed, duration: this.duration,
       energy: this.energy, maxEnergy: this.maxEnergy, score: this.score,
       runCoins: this.runCoins, walletCoins, chaos: this.chaos,

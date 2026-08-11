@@ -101,7 +101,7 @@ export class PlayerController {
       movement.normalize();
       this.facing.copy(movement);
       const eventSpeed = simulation.activeEvent?.moveMultiplier ?? 1;
-      const speed = 235 * character.stats.moveSpeed * eventSpeed * (1 + simulation.perkLevel('coffee') * 0.14) * (simulation.chaosSeconds > 0 ? 1.16 : 1);
+      const speed = 235 * character.stats.moveSpeed * eventSpeed * simulation.gameplayModifiers.moveSpeedMultiplier * (simulation.chaosSeconds > 0 ? 1.16 : 1);
       this.sprite.setVelocity(movement.x * speed, movement.y * speed);
       this.sprite.setFlipX(movement.x < -0.05);
       this.sprite.setRotation(Math.sin(time * 0.018) * 0.035);
@@ -114,13 +114,12 @@ export class PlayerController {
     this.pendingDash = false;
     if (!wantsDash || time < this.readyAt) return { dashStarted: false, moving };
 
-    const escapeLevel = simulation.perkLevel('escape');
     if (!moving) movement.copy(this.facing);
     this.facing.copy(movement.normalize());
     const momentumBonus = character.ability.id === 'momentum' ? 55 : 0;
-    this.dashUntil = time + 235 + escapeLevel * 35 + momentumBonus;
+    this.dashUntil = time + 235 + simulation.gameplayModifiers.dashDurationBonusMs + momentumBonus;
     this.invulnerableUntil = this.dashUntil + 90;
-    this.readyAt = time + Math.max(1250, 4200 * character.stats.dashCooldown * (1 - escapeLevel * 0.22));
+    this.readyAt = time + Math.max(1250, 4200 * character.stats.dashCooldown * simulation.gameplayModifiers.dashCooldownMultiplier);
     return { dashStarted: true, moving: true };
   }
 }

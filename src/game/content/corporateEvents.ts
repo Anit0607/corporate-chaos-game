@@ -28,7 +28,7 @@ export const CORPORATE_EVENTS: CorporateEventDefinition[] = [
   },
   {
     id: 'calendar-purge', title: 'CALENDAR PURGE', subtitle: 'A rare operational miracle',
-    description: 'Meetings slow down and incoming pressure briefly drops.', duration: 15, accent: '#b46cff',
+    description: 'Incoming pressure drops and urgent requests deal less damage.', duration: 15, accent: '#b46cff',
     spawnMultiplier: 1.4, moveMultiplier: 1, attackMultiplier: 1, damageMultiplier: 0.88, focusHazard: 'meeting',
   },
   {

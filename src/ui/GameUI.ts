@@ -11,7 +11,6 @@ export class GameUI {
   private readonly root: HTMLElement;
   private readonly screenIds = ['menu-screen', 'character-screen', 'briefing-screen', 'result-screen'];
   private toastTimer = 0;
-  private eventTimer = 0;
   private readonly touchDirections = new Set<string>();
 
   constructor(root: HTMLElement) {
@@ -264,14 +263,19 @@ export class GameUI {
     gameBus.on('game:ready', () => this.root.classList.add('is-ready'));
     gameBus.on('game:menu', () => this.showOnly('menu-screen'));
     gameBus.on('game:run-started', () => {
+      window.clearTimeout(this.toastTimer);
       this.hideScreens();
       this.byId('hud').classList.add('is-visible');
       this.byId('event-banner').classList.remove('is-visible');
       this.byId('boss-hud').classList.remove('is-visible');
+      this.byId('toast').classList.remove('is-visible');
     });
   }
 
   private updateHud(snapshot: HudSnapshot): void {
+    const hud = this.byId('hud');
+    hud.dataset.character = snapshot.character;
+    hud.dataset.perks = snapshot.perks.join(',');
     this.byId('hud-clock').textContent = snapshot.clock;
     this.byId('hud-wave').textContent = snapshot.waveLabel.toUpperCase();
     this.byId('hud-score').textContent = formatScore(snapshot.score);
@@ -289,8 +293,14 @@ export class GameUI {
     this.byId('ability-chip').querySelector('b')!.textContent = snapshot.abilityName.toUpperCase();
     const bossHud = this.byId('boss-hud');
     bossHud.classList.toggle('is-visible', snapshot.bossActive);
+    bossHud.dataset.health = String(snapshot.bossHealth);
+    bossHud.dataset.maxHealth = String(snapshot.bossMaxHealth);
+    bossHud.dataset.phase = String(snapshot.bossPhase);
     this.byId('boss-fill').style.width = `${snapshot.bossMaxHealth > 0 ? (snapshot.bossHealth / snapshot.bossMaxHealth) * 100 : 0}%`;
     this.byId('boss-phase').textContent = `PHASE ${snapshot.bossPhase || 1}`;
+    const eventBanner = this.byId('event-banner');
+    eventBanner.classList.toggle('is-visible', snapshot.activeEvent !== null);
+    eventBanner.dataset.active = String(snapshot.activeEvent !== null);
   }
 
   private showPerks(ids: string[]): void {
@@ -317,14 +327,14 @@ export class GameUI {
   }
 
   private showCorporateEvent(event: CorporateEventDefinition): void {
-    window.clearTimeout(this.eventTimer);
     const banner = this.byId('event-banner');
     banner.style.setProperty('--event-accent', event.accent);
     this.byId('event-subtitle').textContent = event.subtitle.toUpperCase();
     this.byId('event-title').textContent = event.title;
     this.byId('event-description').textContent = event.description;
     banner.classList.add('is-visible');
-    this.eventTimer = window.setTimeout(() => banner.classList.remove('is-visible'), Math.min(6200, event.duration * 1000));
+    banner.dataset.eventId = event.id;
+    banner.dataset.duration = String(event.duration);
   }
 
   private updateProfile(profile: PlayerProfile): void {
@@ -341,9 +351,13 @@ export class GameUI {
   }
 
   private showResult(result: RunResult): void {
+    window.clearTimeout(this.toastTimer);
     this.byId('hud').classList.remove('is-visible');
     this.byId('pause-modal').classList.remove('is-visible');
     this.byId('perk-modal').classList.remove('is-visible');
+    this.byId('event-banner').classList.remove('is-visible');
+    this.byId('boss-hud').classList.remove('is-visible');
+    this.byId('toast').classList.remove('is-visible');
     this.byId('result-kicker').textContent = result.won ? 'SHIFT COMPLETE // 5:00 PM' : 'PERFORMANCE INTERRUPTED';
     this.byId('result-title').textContent = result.won ? 'You survived corporate culture.' : 'The inbox won this round.';
     this.byId('result-rank').textContent = result.rank;

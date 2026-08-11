@@ -5,6 +5,8 @@ import type { PlayerProfile } from './progression/ProfileStore';
 export type { CharacterId } from './content/characters';
 
 export interface HudSnapshot {
+  character: CharacterId;
+  perks: string[];
   clock: string;
   elapsed: number;
   duration: number;
@@ -73,6 +75,7 @@ export type GameEventMap = {
 
 class TypedGameBus {
   private readonly target = new EventTarget();
+  private readonly listenerCounts = new Map<keyof GameEventMap, number>();
 
   emit<K extends keyof GameEventMap>(type: K, detail: GameEventMap[K]): void {
     this.target.dispatchEvent(new CustomEvent(type, { detail }));
@@ -84,7 +87,19 @@ class TypedGameBus {
   ): () => void {
     const wrapped = (event: Event) => listener((event as CustomEvent<GameEventMap[K]>).detail);
     this.target.addEventListener(type, wrapped);
-    return () => this.target.removeEventListener(type, wrapped);
+    this.listenerCounts.set(type, (this.listenerCounts.get(type) ?? 0) + 1);
+    let active = true;
+    return () => {
+      if (!active) return;
+      active = false;
+      this.target.removeEventListener(type, wrapped);
+      this.listenerCounts.set(type, Math.max(0, (this.listenerCounts.get(type) ?? 1) - 1));
+    };
+  }
+
+  listenerCount(type?: keyof GameEventMap): number {
+    if (type) return this.listenerCounts.get(type) ?? 0;
+    return [...this.listenerCounts.values()].reduce((total, count) => total + count, 0);
   }
 }
 
