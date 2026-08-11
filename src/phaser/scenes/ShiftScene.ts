@@ -3,7 +3,7 @@ import { soundboard } from '../../audio/Soundboard';
 import { analytics } from '../../game/analytics/analytics';
 import { CHARACTERS } from '../../game/content/characters';
 import { availableHazards, HAZARDS, type HazardId } from '../../game/content/hazards';
-import { choosePerks, PERKS } from '../../game/content/perks';
+import { PERKS } from '../../game/content/perks';
 import { gameBus, type CharacterId } from '../../game/events';
 import { profileStore } from '../../game/progression/ProfileStore';
 import { ShiftSimulation } from '../../game/simulation/ShiftSimulation';
@@ -37,6 +37,7 @@ export class ShiftScene extends Phaser.Scene {
   private chaosOverlay!: Phaser.GameObjects.Rectangle;
   private officeGlow!: Phaser.GameObjects.Rectangle;
   private readonly unsubscribe: Array<() => void> = [];
+  private readonly runTimers = new Set<Phaser.Time.TimerEvent>();
 
   constructor() {
     super('ShiftScene');
@@ -76,7 +77,7 @@ export class ShiftScene extends Phaser.Scene {
     };
     window.addEventListener('blur', pauseOnFocusLoss);
     this.unsubscribe.push(() => window.removeEventListener('blur', pauseOnFocusLoss));
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.unsubscribe.splice(0).forEach((off) => off()));
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdownScene, this);
   }
 
   update(time: number, delta: number): void {
@@ -110,7 +111,7 @@ export class ShiftScene extends Phaser.Scene {
       this.spawnHazard();
     }
 
-    const attackDelay = Math.max(235, 820 * (1 - this.simulation.perkLevel('reply') * 0.18) / character.stats.fireRate / (this.simulation.activeEvent?.attackMultiplier ?? 1));
+    const attackDelay = Math.max(235, 820 * (1 - this.simulation.perkLevel('reply') * 0.18) / character.stats.fireRate / this.simulation.activeAttackMultiplier);
     if (time - this.lastShotAt >= attackDelay) {
       this.lastShotAt = time;
       this.fireAtNearest();
@@ -150,6 +151,30 @@ export class ShiftScene extends Phaser.Scene {
     );
   }
 
+  private shutdownScene(): void {
+    this.running = false;
+    this.manuallyPaused = false;
+    this.perkPaused = false;
+    this.clearRunTimers();
+    this.tweens.killAll();
+    this.unsubscribe.splice(0).forEach((off) => off());
+    this.input.keyboard?.removeKey(this.pauseKey, true);
+  }
+
+  private scheduleRunTimer(delay: number, callback: () => void): void {
+    let timer!: Phaser.Time.TimerEvent;
+    timer = this.time.delayedCall(delay, () => {
+      this.runTimers.delete(timer);
+      callback();
+    });
+    this.runTimers.add(timer);
+  }
+
+  private clearRunTimers(): void {
+    this.runTimers.forEach((timer) => timer.remove(false));
+    this.runTimers.clear();
+  }
+
   private createEnvironment(): void {
     const arena = createOfficeArena(this);
     this.obstacles = arena.obstacles;
@@ -165,6 +190,7 @@ export class ShiftScene extends Phaser.Scene {
     const duration = Number.isFinite(queryDuration) && queryDuration > 0 ? queryDuration : configuredDuration;
     const seed = Number.isFinite(querySeed) && querySeed > 0 ? querySeed : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
 
+    this.clearRunTimers();
     this.hazards.clear(true, true);
     this.projectiles.clear(true, true);
     this.coins.clear(true, true);
@@ -204,6 +230,7 @@ export class ShiftScene extends Phaser.Scene {
     this.running = false;
     this.manuallyPaused = false;
     this.perkPaused = false;
+    this.clearRunTimers();
     this.physics.pause();
     this.hazards.clear(true, true);
     this.projectiles.clear(true, true);
@@ -354,7 +381,7 @@ export class ShiftScene extends Phaser.Scene {
     const damage = projectile.getData('damage') as number;
     const kind = hazard.getData('kind') as SceneHazardKind;
     hazard.setTint(0xffffff);
-    this.time.delayedCall(45, () => hazard.active && hazard.clearTint());
+    this.scheduleRunTimer(45, () => hazard.active && hazard.clearTint());
 
     const pierce = (projectile.getData('pierce') as number) - 1;
     projectile.setData('pierce', pierce);
@@ -387,7 +414,7 @@ export class ShiftScene extends Phaser.Scene {
       this.effects.burst(x, y, 0xff4d8d, 42);
       this.effects.shake(520, 0.014);
       soundboard.play('boss');
-      gameBus.emit('game:toast', 'REGIONAL DIRECTOR OFFLINE · PLEASE ENJOY 5 PM');
+      gameBus.emit('game:toast', 'REGIONAL DIRECTOR OFFLINE · HOLD UNTIL CLOCK-OUT');
       analytics.capture('boss_defeated', { shift_second: Math.round(this.simulation!.elapsed), seed: this.simulation!.seed });
       return;
     }
@@ -399,7 +426,7 @@ export class ShiftScene extends Phaser.Scene {
     analytics.capture('hazard_defeated', { hazard: kind, shift_second: Math.round(this.simulation!.elapsed) });
 
     if (kind === 'email' && this.simulation!.random.next() < 0.18 && !this.simulation!.bossStarted) {
-      this.time.delayedCall(120, () => {
+      this.scheduleRunTimer(120, () => {
         if (!this.running) return;
         this.spawnHazard('email', { x: Phaser.Math.Clamp(x - 24, 90, 1190), y: Phaser.Math.Clamp(y + 18, 200, 625) }, true);
         this.spawnHazard('email', { x: Phaser.Math.Clamp(x + 24, 90, 1190), y: Phaser.Math.Clamp(y - 18, 200, 625) }, true);
@@ -490,7 +517,7 @@ export class ShiftScene extends Phaser.Scene {
     this.simulation!.markUpgradeOffered();
     this.perkPaused = true;
     this.physics.pause();
-    const ids = choosePerks(3).map((perk) => perk.id);
+    const ids = this.simulation!.choosePerkIds(3);
     gameBus.emit('game:perk-offer', ids);
     analytics.capture('upgrade_offered', { shift_second: Math.round(this.simulation!.elapsed) });
   }
@@ -540,7 +567,7 @@ export class ShiftScene extends Phaser.Scene {
     soundboard.play('boss');
     this.effects.telegraph(640, 150, 0xff4d8d, 122, 1100);
     this.effects.shake(420, 0.012);
-    gameBus.emit('game:toast', '5 PM ESCALATION · THE REGIONAL DIRECTOR HAS JOINED');
+    gameBus.emit('game:toast', 'FINAL ESCALATION · THE REGIONAL DIRECTOR HAS JOINED');
     analytics.capture('boss_started', { seed: simulation.seed, shift_second: Math.round(simulation.elapsed) });
   }
 
@@ -605,6 +632,7 @@ export class ShiftScene extends Phaser.Scene {
   private finishRun(): void {
     if (!this.simulation || !this.running) return;
     this.running = false;
+    this.clearRunTimers();
     this.physics.pause();
     this.walletCoins += this.simulation.runCoins;
     localStorage.setItem(WALLET_KEY, String(this.walletCoins));

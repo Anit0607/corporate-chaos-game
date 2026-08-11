@@ -40,7 +40,7 @@ export class GameUI {
             <p class="status-chip"><span></span> NOW HIRING SURVIVORS</p>
             <h1 id="game-title"><span>CORPORATE</span> CHAOS</h1>
             <p class="subtitle">SURVIVE THE SHIFT</p>
-            <p class="lede">One workday. Zero boundaries. Make it to 5 PM.</p>
+            <p class="lede">Survive the Final Escalation and make it to 5 PM.</p>
             <div class="menu-actions">
               <button id="start-button" class="button button-primary" type="button">CLOCK IN</button>
               <button id="how-button" class="button button-ghost" type="button">SHIFT BRIEF</button>
@@ -63,7 +63,7 @@ export class GameUI {
               <li><strong>Dash</strong><span>Space bar when the indicator is ready</span></li>
               <li><strong>Upgrade</strong><span>Build a different survival strategy every run</span></li>
               <li><strong>Escalate</strong><span>React to random corporate events</span></li>
-              <li><strong>Clock out</strong><span>Defeat the Regional Director at 5 PM</span></li>
+              <li><strong>Clock out</strong><span>Defeat the Regional Director, then reach 5 PM</span></li>
             </ol>
             <p>Paperclips fire automatically at the nearest corporate problem. Your only real task is survival.</p>
           </aside>

@@ -77,7 +77,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDefinition> = {
     ability: {
       id: 'boundary',
       name: 'Professional Boundary',
-      description: 'Completely blocks one urgent request, recharging every 32 seconds.',
+      description: 'Completely blocks one incoming hit, recharging every 32 seconds.',
     },
     quips: [
       'That sounds like a next-quarter problem.',

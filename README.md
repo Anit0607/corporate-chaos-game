@@ -11,7 +11,7 @@ A free workplace-comedy arcade game for desktop browsers and landscape touch dev
 - Eight escalating hazards with distinct behavior and readable telegraphs
 - Five random corporate events that alter pressure, movement, damage or attacks
 - Six upgrade types and a recurring three-choice perk draft
-- A four-phase 5 PM boss encounter against the Regional Director
+- A four-phase late-shift Final Escalation against the Regional Director
 - Energy, score, Chaos Mode, earned Chaos Coins, win/failure, and replay
 - Persistent high score, run/win history and achievement badges
 - Anonymous provider-neutral analytics
@@ -27,6 +27,8 @@ A free workplace-comedy arcade game for desktop browsers and landscape touch dev
 | Menus | Mouse or keyboard focus |
 
 Touch devices receive an on-screen direction pad and dash control in landscape layouts.
+
+The Regional Director enters before clock-out during the **Final Escalation**. Defeating the boss early does not end the run: victory requires both defeating the Director and reaching 5:00 PM. In the standard six-minute shift, the encounter begins at approximately 4:12 PM.
 
 ## Local development
 

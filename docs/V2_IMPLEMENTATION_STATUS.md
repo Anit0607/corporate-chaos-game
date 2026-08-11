@@ -11,12 +11,12 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 | Living corporate world | Labeled open plan, break room, HR safe space and executive lift; expanded original procedural character/hazard visuals and environmental storytelling. | Implemented foundation |
 | Hazard depth | Email chains, expanding meetings, zigzag KPI forms, accelerating managers, orbiting HR, persistent client calls, timed deadlines and freezing performance reviews. | Implemented |
 | Corporate events | Five seeded run events with visible banners and temporary rule modifiers. | Implemented |
-| Boss/final climax | Regional Director enters late in the shift with four named phases: summons, area denial, tracking calls and a final PIP burst. Victory requires boss defeat and 5 PM. | Implemented |
+| Boss/final climax | Regional Director enters during the pre-5-PM Final Escalation with four named phases: summons, area denial, tracking calls and a final PIP burst. Victory requires boss defeat and reaching 5 PM. | Implemented |
 | Game feel | Spawn telegraphs, boss phase feedback, damage flashes, particles, restrained shake, floating boss damage, dedicated event/boss/shield audio and reduced-motion support. | Implemented |
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
 | Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Eleven deterministic simulation/content tests, CI type-check/build, and a Chrome/Edge smoke run covering menu, recruits, briefing, gameplay, perk handling, a corporate event, the boss, and 900x600 touch layout. | Implemented locally; managed browser CI remains |
+| Testing | Twenty-seven deterministic simulation, content and profile-store tests, CI type-check/build, and a Chrome/Edge smoke run covering menu, recruits, briefing, gameplay, perk handling, every corporate-event rule, all boss phases, completion/failure, and 900x600 touch layout. | Implemented locally; managed browser CI remains |
 
 ## Architecture after refactor
 

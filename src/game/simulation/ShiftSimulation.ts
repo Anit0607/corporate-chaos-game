@@ -1,5 +1,6 @@
 import { characterById, type CharacterId } from '../content/characters';
-import { CORPORATE_EVENTS, type CorporateEventDefinition } from '../content/corporateEvents';
+import { CORPORATE_EVENTS, type CorporateEventDefinition, type CorporateEventId } from '../content/corporateEvents';
+import { choosePerks } from '../content/perks';
 import type { HudSnapshot, RunResult } from '../events';
 import { SeededRandom } from '../random';
 
@@ -26,6 +27,7 @@ export class ShiftSimulation {
   readonly duration: number;
   readonly character: CharacterId;
   readonly seed: number;
+  readonly bossLeadSeconds: number;
   readonly bossStartAt: number;
   readonly bossMaxHealth: number;
   readonly perks = new Map<string, number>();
@@ -63,9 +65,9 @@ export class ShiftSimulation {
     const character = characterById(this.character);
     this.maxEnergy = character.stats.maxEnergy;
     this.energy = this.maxEnergy;
-    const bossLeadSeconds = Math.min(36, Math.max(12, this.duration * 0.18));
-    this.bossStartAt = Math.max(this.duration * 0.5, this.duration - bossLeadSeconds);
-    this.bossMaxHealth = Math.max(14, Math.round(bossLeadSeconds * 1.12));
+    this.bossLeadSeconds = Math.min(36, Math.max(12, this.duration * 0.18));
+    this.bossStartAt = Math.max(this.duration * 0.5, this.duration - this.bossLeadSeconds);
+    this.bossMaxHealth = Math.max(14, Math.round(this.bossLeadSeconds * 1.12));
     this.bossHealth = this.bossMaxHealth;
   }
 
@@ -154,6 +156,14 @@ export class ShiftSimulation {
     return (this.chaosSeconds > 0 ? 2 : 1) * (1 + this.perkLevel('printer') * 0.2);
   }
 
+  get activeAttackMultiplier(): number {
+    return this.activeEvent?.attackMultiplier ?? 1;
+  }
+
+  choosePerkIds(count = 3): string[] {
+    return choosePerks(count, () => this.random.next()).map((perk) => perk.id);
+  }
+
   get shouldOfferUpgrade(): boolean {
     const interval = Math.min(45, Math.max(20, this.duration / 5));
     const expected = Math.floor(this.elapsed / interval);
@@ -171,11 +181,11 @@ export class ShiftSimulation {
     return expected > this.eventIndex && this.elapsed < this.bossStartAt - 8 && !this.activeEvent;
   }
 
-  triggerCorporateEvent(): CorporateEventDefinition {
+  triggerCorporateEvent(forcedId?: CorporateEventId): CorporateEventDefinition {
     const interval = Math.min(72, Math.max(30, this.duration / 4.8));
     this.eventIndex = Math.floor(this.elapsed / interval);
     const pool = CORPORATE_EVENTS.filter((event) => event.id !== this.lastEventId);
-    const event = this.random.pick(pool);
+    const event = forcedId ? CORPORATE_EVENTS.find((candidate) => candidate.id === forcedId)! : this.random.pick(pool);
     this.lastEventId = event.id;
     this.activeEvent = event;
     this.activeEventEndsAt = this.elapsed + event.duration;
@@ -220,7 +230,15 @@ export class ShiftSimulation {
   }
 
   clockLabel(): string {
-    const workMinutes = Math.min(480, Math.floor((this.elapsed / this.duration) * 480));
+    return this.clockLabelAt(this.elapsed);
+  }
+
+  bossStartClockLabel(): string {
+    return this.clockLabelAt(this.bossStartAt);
+  }
+
+  private clockLabelAt(elapsed: number): string {
+    const workMinutes = Math.min(480, Math.floor((elapsed / this.duration) * 480));
     const totalMinutes = 9 * 60 + workMinutes;
     let hour = Math.floor(totalMinutes / 60);
     const minute = totalMinutes % 60;
