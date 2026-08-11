@@ -45,6 +45,28 @@ describe('ShiftSimulation', () => {
     expect(simulation.maxEnergy).toBe(100);
   });
 
+  it('maps every perk description to authoritative gameplay modifiers', () => {
+    const simulation = new ShiftSimulation(90);
+    simulation.applyPerk('coffee');
+    simulation.applyPerk('reply');
+    simulation.applyPerk('shield');
+    simulation.applyPerk('escape');
+    simulation.applyPerk('printer');
+
+    const modifiers = simulation.gameplayModifiers;
+    expect(modifiers.moveSpeedMultiplier).toBeCloseTo(1.14);
+    expect(modifiers.fireDelayMultiplier).toBeCloseTo(0.82);
+    expect(modifiers.projectileDamageBonus).toBe(1);
+    expect(modifiers.damageTakenMultiplier).toBeCloseTo(0.82);
+    expect(modifiers.dashDurationBonusMs).toBe(35);
+    expect(modifiers.dashCooldownMultiplier).toBeCloseTo(0.78);
+    expect(modifiers.projectilePierce).toBe(1);
+    expect(modifiers.pickupRadiusBonus).toBe(25);
+    expect(modifiers.scoreMultiplier).toBeCloseTo(1.2);
+    simulation.recordHazardCleared(100, 0);
+    expect(simulation.score).toBe(120);
+  });
+
   it('gives the Cool Head a rechargeable damage boundary', () => {
     const simulation = new ShiftSimulation({ durationSeconds: 90, character: 'blue-recruit' });
     expect(simulation.takeDamage(40)).toBe(0);

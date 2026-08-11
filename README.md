@@ -51,12 +51,14 @@ pnpm test
 pnpm build
 ```
 
-For the Chrome/Edge menu-to-boss smoke run, start Vite on the QA port and run the browser suite in a second terminal:
+For the Chrome/Edge full-lifecycle smoke run, start Vite on the QA port and run the browser suite in a second terminal:
 
 ```bash
 pnpm dev -- --host 127.0.0.1 --port 4173
 pnpm test:browser
 ```
+
+The browser suite covers character selection, movement, dash, automatic combat, pause/resume, focus loss, perks, event timing, all boss phases, victory, replay, defeat, cleanup and a 900x600 compact layout. Its simulation bridge is available only in local development when the suite loads the game with `?e2e=1`; production and normal gameplay do not expose it.
 
 ## Architecture
 
@@ -69,7 +71,7 @@ pnpm test:browser
 - `src/ui`: DOM menus, HUD, overlays, results, and accessibility surfaces
 - `src/audio`: lightweight original Web Audio cues
 
-Phaser scenes are presentation adapters. Saveable state, scoring, clocks, seeded events, boss progression and run rules live in the simulation layer.
+Phaser scenes are presentation adapters. Saveable state, scoring, clocks, seeded events, perk modifiers, boss progression and run rules live in the simulation layer. DOM event and boss indicators are driven by the same typed HUD snapshots, including during pause and replay transitions.
 
 The pre-V2 repository is preserved by the annotated `v0.1.0-baseline` Git tag. See `docs/V2_IMPLEMENTATION_STATUS.md` for the blueprint comparison and remaining tuning work.
 

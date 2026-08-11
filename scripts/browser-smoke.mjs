@@ -1,22 +1,20 @@
+import assert from 'node:assert/strict';
 import { existsSync, writeSync } from 'node:fs';
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from 'playwright-core';
 
 const baseUrl = process.env.GAME_URL ?? 'http://127.0.0.1:4173';
-const outputDir = path.resolve('playwright-report', 'v2-smoke');
-const chromeCandidates = [
+const outputDir = path.resolve('playwright-report', 'milestone-2-smoke');
+const executablePath = [
   process.env.CHROME_PATH,
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
   '/usr/bin/google-chrome',
   '/usr/bin/chromium',
-].filter(Boolean);
-const executablePath = chromeCandidates.find(existsSync);
+].filter(Boolean).find(existsSync);
 
-if (!executablePath) {
-  throw new Error('Chrome or Edge was not found. Set CHROME_PATH to a Chromium executable.');
-}
+if (!executablePath) throw new Error('Chrome or Edge was not found. Set CHROME_PATH to a Chromium executable.');
 
 await rm(outputDir, { recursive: true, force: true });
 await mkdir(outputDir, { recursive: true });
@@ -31,109 +29,283 @@ const attachDiagnostics = (page) => {
 };
 
 const capture = (page, name) => page.screenshot({ path: path.join(outputDir, `${name}.png`) });
+const snapshot = (page) => page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.snapshot());
 
-const enterShift = async (page, duration, character, seed) => {
-  await page.goto(`${baseUrl}/?duration=${duration}&seed=${seed}`, { waitUntil: 'domcontentloaded' });
-  await page.getByRole('heading', { name: 'CORPORATE CHAOS' }).waitFor();
+const waitUntil = async (page, check, label, timeoutMs = 12_000) => {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await check()) return;
+    await page.waitForTimeout(100);
+  }
+  throw new Error(`Timed out waiting for ${label}.`);
+};
+
+const driveUntil = async (page, check, label, timeoutMs, maintainEnergy = false) => {
+  const directions = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'];
+  const deadline = Date.now() + timeoutMs;
+  let held;
+  let step = 0;
+  try {
+    while (Date.now() < deadline) {
+      if (await check()) return;
+      if (await page.locator('#result-screen.is-visible').isVisible()) {
+        throw new Error(`Run ended before ${label}.`);
+      }
+      if (maintainEnergy && ((await snapshot(page))?.simulation?.energy ?? 100) < 45) {
+        await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
+      }
+      const followupPerk = page.locator('#perk-modal.is-visible [data-perk]').first();
+      if (await followupPerk.isVisible()) {
+        await followupPerk.click();
+        await page.waitForTimeout(120);
+        continue;
+      }
+      const direction = directions[Math.floor(step / 6) % directions.length];
+      if (direction !== held) {
+        if (held) await page.keyboard.up(held);
+        held = direction;
+        await page.keyboard.down(held);
+      }
+      await page.keyboard.press('Space');
+      step += 1;
+      await page.waitForTimeout(240);
+    }
+  } finally {
+    if (held) await page.keyboard.up(held);
+  }
+  throw new Error(`Timed out driving toward ${label}.`);
+};
+
+const enterShift = async (page, character) => {
   await page.getByRole('button', { name: 'CLOCK IN' }).click();
   await page.getByRole('heading', { name: 'Choose your recruit' }).waitFor();
   await page.locator(`[data-character="${character}"]`).click();
+  await page.getByRole('heading', { name: 'Welcome to Chaos Corp.' }).waitFor();
   await page.getByRole('button', { name: 'ENTER THE OFFICE' }).click();
   await page.locator('#hud.is-visible').waitFor();
 };
 
-const drivePlayer = async (page, maximumMs, checks) => {
-  const directions = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'];
-  let heldDirection;
-  const started = Date.now();
-  while (Date.now() - started < maximumMs) {
-    const elapsed = Date.now() - started;
-    const direction = directions[Math.floor(elapsed / 1800) % directions.length];
-    if (direction !== heldDirection) {
-      if (heldDirection) await page.keyboard.up(heldDirection);
-      await page.keyboard.down(direction);
-      heldDirection = direction;
-    }
-    await page.keyboard.press('Space');
-    const perk = page.locator('#perk-modal.is-visible [data-perk]').first();
-    if (await perk.isVisible()) await perk.click();
-    if (await checks()) break;
-    await page.waitForTimeout(260);
+const assertPerkEffect = (id, before, after) => {
+  if (id === 'coffee') assert(after.moveSpeedMultiplier > before.moveSpeedMultiplier, 'Coffee Rush did not increase movement.');
+  if (id === 'reply') {
+    assert(after.fireDelayMultiplier < before.fireDelayMultiplier, 'Reply-All Blast did not increase fire rate.');
+    assert(after.projectileDamageBonus > before.projectileDamageBonus, 'Reply-All Blast did not increase damage.');
   }
-  if (heldDirection) await page.keyboard.up(heldDirection);
+  if (id === 'shield') assert(after.damageTakenMultiplier < before.damageTakenMultiplier, 'KPI Shield did not reduce damage.');
+  if (id === 'escape') {
+    assert(after.dashDurationBonusMs > before.dashDurationBonusMs, 'Meeting Escape did not extend the dash.');
+    assert(after.dashCooldownMultiplier < before.dashCooldownMultiplier, 'Meeting Escape did not reduce cooldown.');
+  }
+  if (id === 'printer') {
+    assert(after.projectilePierce > before.projectilePierce, 'Printer Rage did not add penetration.');
+    assert(after.scoreMultiplier > before.scoreMultiplier, 'Printer Rage did not increase score.');
+  }
 };
 
 let exitCode = 0;
 let summary = '';
 try {
-  const desktop = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-  attachDiagnostics(desktop);
-  await desktop.goto(`${baseUrl}/?duration=60&seed=20260810`, { waitUntil: 'domcontentloaded' });
-  await desktop.getByRole('heading', { name: 'CORPORATE CHAOS' }).waitFor();
-  await capture(desktop, '01-desktop-menu');
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  attachDiagnostics(page);
+  await page.goto(`${baseUrl}/?duration=60&seed=20260812&e2e=1`, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('heading', { name: 'CORPORATE CHAOS' }).waitFor();
+  await waitUntil(page, async () => Boolean(await snapshot(page)), 'E2E bridge');
+  await capture(page, '01-menu');
 
-  await desktop.getByRole('button', { name: 'CLOCK IN' }).click();
-  await desktop.getByRole('heading', { name: 'Choose your recruit' }).waitFor();
-  await capture(desktop, '02-desktop-characters');
-  await desktop.locator('[data-character="blue-recruit"]').click();
-  await desktop.getByRole('heading', { name: 'Welcome to Chaos Corp.' }).waitFor();
-  await capture(desktop, '03-desktop-briefing');
-  await desktop.getByRole('button', { name: 'ENTER THE OFFICE' }).click();
-  await desktop.locator('#hud.is-visible').waitFor();
-  await desktop.waitForTimeout(1000);
-  await capture(desktop, '04-desktop-gameplay');
+  await page.getByRole('button', { name: 'CLOCK IN' }).click();
+  await page.getByRole('heading', { name: 'Choose your recruit' }).waitFor();
+  await capture(page, '02-character-selection');
+  await page.locator('[data-character="blue-recruit"]').click();
+  await page.getByRole('heading', { name: 'Welcome to Chaos Corp.' }).waitFor();
+  assert.match(await page.locator('#briefing-copy').innerText(), /blocks one incoming hit/i);
+  await capture(page, '03-briefing');
+  await page.getByRole('button', { name: 'ENTER THE OFFICE' }).click();
+  await page.locator('#hud.is-visible').waitFor();
 
-  let eventCaptured = false;
-  await drivePlayer(desktop, 37_000, async () => {
-    if (await desktop.locator('#event-banner.is-visible').isVisible()) {
-      await capture(desktop, '05-desktop-event');
-      eventCaptured = true;
-      return true;
-    }
-    if (await desktop.locator('#result-screen.is-visible').isVisible()) throw new Error('Player was defeated before the corporate event.');
-    return false;
-  });
+  const initial = await snapshot(page);
+  assert(initial?.running && initial.simulation, 'Run did not start in the simulation.');
+  assert.equal(initial.character, 'blue-recruit');
+  assert.equal(initial.simulation.maxEnergy, 118);
+  assert.equal(initial.player.texture, 'player-blue');
+  assert.equal(await page.locator('#hud').getAttribute('data-character'), 'blue-recruit');
+  const stableSubscriptions = initial.sceneSubscriptions;
+  const stableBusListeners = initial.busListeners;
 
-  await enterShift(desktop, 30, 'blue-recruit', 20260811);
-  let bossCaptured = false;
-  await drivePlayer(desktop, 25_000, async () => {
-    if (await desktop.locator('#boss-hud.is-visible').isVisible()) {
-      await capture(desktop, '06-desktop-boss');
-      bossCaptured = true;
-      return true;
-    }
-    if (await desktop.locator('#result-screen.is-visible').isVisible()) throw new Error('Player was defeated before the Regional Director appeared.');
-    return false;
-  });
-
-  const compact = desktop;
-  await compact.setViewportSize({ width: 900, height: 600 });
-  await compact.goto(`${baseUrl}/?duration=30&seed=20260810`, { waitUntil: 'domcontentloaded' });
-  await compact.getByRole('button', { name: 'CLOCK IN' }).click();
-  await compact.getByRole('heading', { name: 'Choose your recruit' }).waitFor();
-  await capture(compact, '07-compact-characters');
-  const panelBox = await compact.locator('.character-panel').boundingBox();
-  if (!panelBox || panelBox.y < 0 || panelBox.y + panelBox.height > 601) {
-    throw new Error(`Compact character panel is clipped: ${JSON.stringify(panelBox)}`);
+  const startX = initial.player.x;
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(650);
+  const moved = await snapshot(page);
+  assert((moved?.player.x ?? 0) > startX + 10, 'Keyboard movement did not move the player right.');
+  await waitUntil(page, async () => Boolean((await snapshot(page))?.player.dashReady), 'dash ready');
+  await page.keyboard.down('Space');
+  try {
+    await waitUntil(page, async () => Boolean((await snapshot(page))?.player.dashing), 'dash start', 2_000);
+  } finally {
+    await page.keyboard.up('Space');
   }
-  await compact.locator('[data-character="blue-recruit"]').click();
-  await compact.getByRole('button', { name: 'ENTER THE OFFICE' }).click();
-  await compact.locator('#touch-controls').waitFor({ state: 'visible' });
-  await capture(compact, '08-compact-gameplay');
+  await waitUntil(page, async () => /RECHARGING/.test(await page.locator('#dash-chip').innerText()), 'dash HUD feedback', 2_000);
+  assert.match(await page.locator('#dash-chip').innerText(), /RECHARGING/);
+  await page.keyboard.up('ArrowRight');
+  await waitUntil(page, async () => (await snapshot(page))?.activeEntities.projectiles > 0, 'automatic combat projectile', 5_000);
+  await capture(page, '04-keyboard-combat');
 
-  if (!eventCaptured) throw new Error('Corporate event banner did not appear during the seeded run.');
-  if (!bossCaptured) throw new Error('Regional Director boss HUD did not appear during the seeded run.');
+  await page.keyboard.down('Escape');
+  try {
+    await page.locator('#pause-modal.is-visible').waitFor();
+  } finally {
+    await page.keyboard.up('Escape');
+  }
+  const pausedAt = (await snapshot(page))?.simulation?.elapsed ?? 0;
+  await page.waitForTimeout(750);
+  const pausedAfter = (await snapshot(page))?.simulation?.elapsed ?? 0;
+  assert(Math.abs(pausedAfter - pausedAt) < 0.05, 'Simulation advanced while paused with Escape.');
+  await page.keyboard.down('Escape');
+  try {
+    await page.locator('#pause-modal').waitFor({ state: 'hidden' });
+  } finally {
+    await page.keyboard.up('Escape');
+  }
+
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await page.locator('#pause-modal.is-visible').waitFor();
+  assert((await snapshot(page))?.manuallyPaused, 'Focus loss did not pause the Phaser scene.');
+  await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
+  await page.locator('#pause-modal').waitFor({ state: 'hidden' });
+
+  await driveUntil(page, () => page.locator('#perk-modal.is-visible').isVisible(), 'perk offer', 28_000);
+  const perkOptions = page.locator('#perk-modal.is-visible [data-perk]');
+  assert.equal(await perkOptions.count(), 3);
+  const offered = await perkOptions.evaluateAll((buttons) => buttons.map((button) => button.getAttribute('data-perk')));
+  const preference = ['snack', 'shield', 'coffee', 'reply', 'escape', 'printer'];
+  const selectedPerk = preference.find((id) => offered.includes(id)) ?? offered[0];
+  assert(selectedPerk, 'No selectable perk was offered.');
+  const beforePerk = await snapshot(page);
+  const selectedButton = page.locator(`[data-perk="${selectedPerk}"]`);
+  const selectedName = await selectedButton.locator('strong').innerText();
+  await capture(page, '05-perk-offer');
+  await selectedButton.click();
+  await waitUntil(page, async () => (await snapshot(page))?.simulation?.perks[selectedPerk] === 1, 'perk application');
+  const afterPerk = await snapshot(page);
+  assert.equal(await page.locator('#hud').getAttribute('data-perks'), selectedPerk);
+  assert.match(await page.locator('#toast').innerText(), new RegExp(selectedName, 'i'));
+  if (selectedPerk === 'snack') assert.equal(afterPerk?.simulation?.maxEnergy, (beforePerk?.simulation?.maxEnergy ?? 0) + 8);
+  else assertPerkEffect(selectedPerk, beforePerk.simulation.modifiers, afterPerk.simulation.modifiers);
+
+  await driveUntil(page, () => page.locator('#event-banner.is-visible').isVisible(), 'corporate event', 20_000);
+  const eventStarted = await snapshot(page);
+  const eventId = eventStarted?.simulation?.activeEventId;
+  assert(eventId, 'Event banner appeared without an active simulation event.');
+  assert.equal(await page.locator('#event-banner').getAttribute('data-event-id'), eventId);
+  const eventEndsAt = eventStarted.simulation.activeEventEndsAt;
+  await capture(page, '06-corporate-event');
+
+  await page.locator('#pause-button').click();
+  await page.locator('#pause-modal.is-visible').waitFor();
+  await page.waitForTimeout(800);
+  assert(await page.locator('#event-banner.is-visible').isVisible(), 'Event banner expired on wall-clock time while paused.');
+  assert.equal((await snapshot(page))?.simulation?.activeEventId, eventId);
+  await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
+  await driveUntil(page, async () => (await snapshot(page))?.simulation?.activeEventId === null, 'event expiration', 20_000, true);
+  await page.locator('#event-banner').waitFor({ state: 'hidden' });
+  assert(((await snapshot(page))?.simulation?.elapsed ?? 0) >= eventEndsAt, 'Event presentation ended before simulation expiration.');
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
+
+  await driveUntil(page, () => page.locator('#boss-hud.is-visible').isVisible(), 'boss encounter', 12_000, true);
+  await page.locator('#pause-button').click();
+  await page.locator('#pause-modal.is-visible').waitFor();
+  let boss = await snapshot(page);
+  assert(boss?.simulation?.bossStarted, 'Boss HUD appeared before the simulation boss started.');
+
+  for (const target of [{ ratio: 0.74, phase: 2 }, { ratio: 0.49, phase: 3 }, { ratio: 0.24, phase: 4 }]) {
+    const simulation = boss.simulation;
+    const damage = simulation.bossHealth - simulation.bossMaxHealth * target.ratio;
+    await page.evaluate((amount) => window.__CORPORATE_CHAOS_E2E__?.damageBoss(amount), damage);
+    boss = await snapshot(page);
+    assert.equal(boss?.simulation?.bossPhase, target.phase);
+    assert.equal(await page.locator('#boss-phase').innerText(), `PHASE ${target.phase}`);
+    assert.equal(Number(await page.locator('#boss-hud').getAttribute('data-phase')), target.phase);
+    const fill = Number.parseFloat(await page.locator('#boss-fill').evaluate((element) => element.style.width));
+    const authoritative = (boss.simulation.bossHealth / boss.simulation.bossMaxHealth) * 100;
+    assert(Math.abs(fill - authoritative) < 0.2, `Boss fill ${fill} did not match simulation ${authoritative}.`);
+  }
+  await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
+  await page.locator('#pause-modal').waitFor({ state: 'hidden' });
+  await page.waitForTimeout(350);
+  await capture(page, '07-boss-phase-four');
+  await page.locator('#pause-button').click();
+  await page.locator('#pause-modal.is-visible').waitFor();
+  await page.evaluate((amount) => window.__CORPORATE_CHAOS_E2E__?.damageBoss(amount), boss.simulation.bossHealth);
+  assert((await snapshot(page))?.simulation?.bossDefeated, 'Boss defeat did not reach authoritative state.');
+  await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.clockOut());
+  await page.locator('#result-screen.is-visible').waitFor({ timeout: 5_000 });
+  await page.waitForTimeout(350);
+  assert.match(await page.locator('#result-kicker').innerText(), /5:00 PM/);
+  assert.equal(await page.locator('#result-boss').innerText(), 'DIRECTOR DEFEATED');
+  const victoryCleanup = await snapshot(page);
+  assert.equal(victoryCleanup?.running, false);
+  assert.deepEqual(victoryCleanup?.activeEntities, { hazards: 0, projectiles: 0, coins: 0, effects: 0, timers: 0 });
+  await capture(page, '08-victory-result');
+
+  await page.getByRole('button', { name: 'WORK ANOTHER SHIFT' }).click();
+  await page.locator('#hud.is-visible').waitFor();
+  await page.waitForTimeout(350);
+  const replay = await snapshot(page);
+  assert(replay?.running && (replay.simulation?.elapsed ?? 99) < 1, 'Replay did not start a fresh simulation.');
+  assert.deepEqual(replay.simulation?.perks, {});
+  assert.equal(replay.sceneSubscriptions, stableSubscriptions);
+  assert.equal(replay.busListeners, stableBusListeners);
+  await capture(page, '09-replay');
+
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.defeatPlayer());
+  await page.locator('#result-screen.is-visible').waitFor({ timeout: 3_000 });
+  await page.waitForTimeout(350);
+  assert.equal(await page.locator('#result-kicker').innerText(), 'PERFORMANCE INTERRUPTED');
+  const defeatCleanup = await snapshot(page);
+  assert.deepEqual(defeatCleanup?.activeEntities, { hazards: 0, projectiles: 0, coins: 0, effects: 0, timers: 0 });
+  await capture(page, '10-defeat-result');
+
+  await page.getByRole('button', { name: 'MAIN MENU' }).click();
+  await enterShift(page, 'red-recruit');
+  const firestarter = await snapshot(page);
+  assert.equal(firestarter?.character, 'red-recruit');
+  assert.equal(firestarter?.simulation?.maxEnergy, 92);
+  assert.equal(firestarter?.player.texture, 'player-red');
+  assert.equal(await page.locator('#hud').getAttribute('data-character'), 'red-recruit');
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.defeatPlayer());
+  await page.locator('#result-screen.is-visible').waitFor({ timeout: 3_000 });
+
+  await page.setViewportSize({ width: 900, height: 600 });
+  await page.goto(`${baseUrl}/?duration=30&seed=20260812&e2e=1`, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'CLOCK IN' }).click();
+  await page.getByRole('heading', { name: 'Choose your recruit' }).waitFor();
+  const panelBox = await page.locator('.character-panel').boundingBox();
+  assert(panelBox && panelBox.y >= 0 && panelBox.y + panelBox.height <= 601, `Compact character panel is clipped: ${JSON.stringify(panelBox)}`);
+  await page.locator('[data-character="blue-recruit"]').click();
+  await page.getByRole('button', { name: 'ENTER THE OFFICE' }).click();
+  await page.locator('#touch-controls').waitFor({ state: 'visible' });
+  await page.waitForTimeout(350);
+  await capture(page, '11-compact-gameplay');
+
   if (browserErrors.length) throw new Error(browserErrors.join('\n'));
-
-  summary = JSON.stringify({ ok: true, eventCaptured, bossCaptured, screenshots: outputDir }, null, 2);
+  summary = JSON.stringify({
+    ok: true,
+    lifecycle: ['menu', 'character', 'briefing', 'run', 'perk', 'event', 'boss', 'victory', 'result', 'replay', 'defeat'],
+    inputs: ['keyboard movement', 'dash', 'automatic combat', 'Escape pause/resume', 'focus-loss pause'],
+    selectedPerk,
+    eventId,
+    bossPhasesVerified: [1, 2, 3, 4],
+    cleanupVerified: true,
+    characterIntegrationVerified: ['blue-recruit', 'red-recruit'],
+    compactLayoutVerified: true,
+    screenshots: outputDir,
+  }, null, 2);
 } catch (error) {
   exitCode = 1;
   summary = error instanceof Error ? (error.stack ?? error.message) : String(error);
 } finally {
-  await Promise.race([
-    browser.close(),
-    new Promise((resolve) => setTimeout(resolve, 3000)),
-  ]);
+  await Promise.race([browser.close(), new Promise((resolve) => setTimeout(resolve, 3_000))]);
   writeSync(exitCode === 0 ? 1 : 2, `${summary}\n`);
   process.exit(exitCode);
 }

@@ -16,7 +16,7 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
 | Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Twenty-seven deterministic simulation, content and profile-store tests, CI type-check/build, and a Chrome/Edge smoke run covering menu, recruits, briefing, gameplay, perk handling, every corporate-event rule, all boss phases, completion/failure, and 900x600 touch layout. | Implemented locally; managed browser CI remains |
+| Testing | Twenty-eight deterministic simulation, content and profile-store tests plus a Chrome/Edge lifecycle run covering both recruits, keyboard movement, dash, combat, Escape/focus-loss pause, perks, pause-aware event timing, all boss phases, victory, replay, defeat, cleanup, console errors and 900x600 touch layout. | Implemented locally; managed browser CI remains |
 
 ## Architecture after refactor
 
@@ -43,7 +43,7 @@ src/
 └── ui/GameUI.ts
 ```
 
-`ShiftSimulation` owns authoritative energy, score, Chaos, event timing, character defense, boss health/phases and victory. Phaser systems translate that state into input, sprites and effects. DOM UI consumes typed snapshots and emits intent through the event bus.
+`ShiftSimulation` owns authoritative energy, score, Chaos, perk modifiers, event timing, character defense, boss health/phases and victory. Phaser systems translate that state into input, sprites and effects. DOM UI consumes typed snapshots and emits intent through the event bus. A query-gated E2E bridge exposes read-focused scene snapshots and deterministic completion controls only to the browser verification suite.
 
 ## Balance observations
 
