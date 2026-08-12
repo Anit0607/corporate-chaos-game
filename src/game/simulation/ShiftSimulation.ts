@@ -298,7 +298,11 @@ export class ShiftSimulation {
   }
 
   result(walletCoins: number): RunResult {
-    const rank = this.score >= 18000 ? 'CHAOS EXECUTIVE' : this.score >= 11000 ? 'OFFICE LEGEND' : this.score >= 6000 ? 'PROMISING RECRUIT' : 'MEETING SURVIVOR';
+    const rankScale = this.duration / 360;
+    const executiveScore = Math.round(400_000 * rankScale);
+    const legendScore = Math.round(320_000 * rankScale);
+    const promisingScore = Math.round(240_000 * rankScale);
+    const rank = this.score >= executiveScore ? 'CHAOS EXECUTIVE' : this.score >= legendScore ? 'OFFICE LEGEND' : this.score >= promisingScore ? 'PROMISING RECRUIT' : 'MEETING SURVIVOR';
     return {
       won: this.won, score: this.score, runCoins: this.runCoins, walletCoins,
       survivedSeconds: this.elapsed, rank, hazardsCleared: this.hazardsCleared,

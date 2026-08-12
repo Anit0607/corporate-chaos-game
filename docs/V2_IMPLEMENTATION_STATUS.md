@@ -16,7 +16,7 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
 | Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Twenty-eight deterministic simulation, content and profile-store tests plus a Chrome/Edge lifecycle run covering both recruits, keyboard movement, dash, combat, Escape/focus-loss pause, perks, pause-aware event timing, all boss phases, victory, replay, defeat, cleanup, console errors and 900x600 touch layout. | Implemented locally; managed browser CI remains |
+| Testing | Thirty deterministic simulation, content and profile-store tests plus a Chrome/Edge lifecycle run covering both recruits, keyboard movement, dash, combat, Escape/focus-loss pause, perks, pause-aware event timing, all boss phases, victory, replay, defeat, cleanup, console errors and 900x600 touch layout. Milestone 3 adds 30 complete baseline balance sessions and 12 complete post-tune sessions. | Implemented locally and in GitHub Actions |
 
 ## Architecture after refactor
 
@@ -51,12 +51,12 @@ src/
 - Cool Head is deliberately safer for first-time players; its boundary recharge is visible in the HUD.
 - Boss health scales with the available boss window so short QA runs remain completable.
 - Event and hazard selection use a supplied seed, making reported balance problems reproducible.
-- Final numbers still need player telemetry and repeated physical-device sessions before a public 1.0 balance lock.
+- Structured M3 evidence shows both characters, all hazards, all perks, all events and all boss phases viable; human telemetry and physical-device sessions are still required before a public 1.0 balance lock.
 
 ## Remaining gaps and prioritized next sprint
 
 1. Replace/extend procedural actors with normalized multi-frame authored sprite animation while preserving collision anchors.
-2. Run structured balance sessions across at least 30 complete shifts and tune boss health, hazard weights and perk pick rates.
+2. Completed: 30 complete baseline shifts plus 12 post-tune shifts, evidence matrix and conservative deadline/review/rank tuning in `docs/balance/`.
 3. Test landscape touch controls on low/mid-range Android hardware and tune button size, safe areas and particle budgets.
 4. Provision a managed Chromium executable in CI and run the existing `test:browser` smoke suite on pull requests.
 5. Connect the Vercel GitHub app so pushes automatically create preview and production deployments.

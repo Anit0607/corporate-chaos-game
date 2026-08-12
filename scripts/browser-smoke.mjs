@@ -40,7 +40,7 @@ const waitUntil = async (page, check, label, timeoutMs = 12_000) => {
   throw new Error(`Timed out waiting for ${label}.`);
 };
 
-const driveUntil = async (page, check, label, timeoutMs, maintainEnergy = false) => {
+const driveUntil = async (page, check, label, timeoutMs, maintainEnergy = false, handleIncidentalPerks = true) => {
   const directions = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'];
   const deadline = Date.now() + timeoutMs;
   let held;
@@ -54,11 +54,13 @@ const driveUntil = async (page, check, label, timeoutMs, maintainEnergy = false)
       if (maintainEnergy && ((await snapshot(page))?.simulation?.energy ?? 100) < 45) {
         await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
       }
-      const followupPerk = page.locator('#perk-modal.is-visible [data-perk]').first();
-      if (await followupPerk.isVisible()) {
-        await followupPerk.click();
-        await page.waitForTimeout(120);
-        continue;
+      if (handleIncidentalPerks) {
+        const followupPerk = page.locator('#perk-modal.is-visible [data-perk]').first();
+        if (await followupPerk.isVisible()) {
+          await followupPerk.click();
+          await page.waitForTimeout(120);
+          continue;
+        }
       }
       const direction = directions[Math.floor(step / 6) % directions.length];
       if (direction !== held) {
@@ -73,7 +75,15 @@ const driveUntil = async (page, check, label, timeoutMs, maintainEnergy = false)
   } finally {
     if (held) await page.keyboard.up(held);
   }
-  throw new Error(`Timed out driving toward ${label}.`);
+  const state = await snapshot(page);
+  throw new Error(`Timed out driving toward ${label}. Snapshot: ${JSON.stringify({
+    running: state?.running,
+    manuallyPaused: state?.manuallyPaused,
+    perkPaused: state?.perkPaused,
+    elapsed: state?.simulation?.elapsed,
+    energy: state?.simulation?.energy,
+    finished: state?.simulation?.finished,
+  })}`);
 };
 
 const enterShift = async (page, character) => {
@@ -172,7 +182,7 @@ try {
   await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
   await page.locator('#pause-modal').waitFor({ state: 'hidden' });
 
-  await driveUntil(page, () => page.locator('#perk-modal.is-visible').isVisible(), 'perk offer', 28_000);
+  await driveUntil(page, () => page.locator('#perk-modal.is-visible').isVisible(), 'perk offer', 45_000, true, false);
   const perkOptions = page.locator('#perk-modal.is-visible [data-perk]');
   assert.equal(await perkOptions.count(), 3);
   const offered = await perkOptions.evaluateAll((buttons) => buttons.map((button) => button.getAttribute('data-perk')));
@@ -186,12 +196,14 @@ try {
   await selectedButton.click();
   await waitUntil(page, async () => (await snapshot(page))?.simulation?.perks[selectedPerk] === 1, 'perk application');
   const afterPerk = await snapshot(page);
+  await waitUntil(page, async () => (await page.locator('#hud').getAttribute('data-perks'))?.split(' ').includes(selectedPerk), 'perk HUD synchronization');
+  await waitUntil(page, async () => new RegExp(selectedName, 'i').test(await page.locator('#toast').innerText()), 'perk toast synchronization');
   assert.equal(await page.locator('#hud').getAttribute('data-perks'), selectedPerk);
   assert.match(await page.locator('#toast').innerText(), new RegExp(selectedName, 'i'));
   if (selectedPerk === 'snack') assert.equal(afterPerk?.simulation?.maxEnergy, (beforePerk?.simulation?.maxEnergy ?? 0) + 8);
   else assertPerkEffect(selectedPerk, beforePerk.simulation.modifiers, afterPerk.simulation.modifiers);
 
-  await driveUntil(page, () => page.locator('#event-banner.is-visible').isVisible(), 'corporate event', 20_000);
+  await driveUntil(page, () => page.locator('#event-banner.is-visible').isVisible(), 'corporate event', 35_000, true);
   const eventStarted = await snapshot(page);
   const eventId = eventStarted?.simulation?.activeEventId;
   assert(eventId, 'Event banner appeared without an active simulation event.');
@@ -206,12 +218,12 @@ try {
   assert.equal((await snapshot(page))?.simulation?.activeEventId, eventId);
   await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
   await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
-  await driveUntil(page, async () => (await snapshot(page))?.simulation?.activeEventId === null, 'event expiration', 20_000, true);
+  await driveUntil(page, async () => (await snapshot(page))?.simulation?.activeEventId === null, 'event expiration', 30_000, true);
   await page.locator('#event-banner').waitFor({ state: 'hidden' });
   assert(((await snapshot(page))?.simulation?.elapsed ?? 0) >= eventEndsAt, 'Event presentation ended before simulation expiration.');
   await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
 
-  await driveUntil(page, () => page.locator('#boss-hud.is-visible').isVisible(), 'boss encounter', 12_000, true);
+  await driveUntil(page, () => page.locator('#boss-hud.is-visible').isVisible(), 'boss encounter', 25_000, true);
   await page.locator('#pause-button').click();
   await page.locator('#pause-modal.is-visible').waitFor();
   let boss = await snapshot(page);

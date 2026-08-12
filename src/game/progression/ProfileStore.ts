@@ -24,7 +24,7 @@ export const ACHIEVEMENTS: Record<string, { name: string; description: string }>
   clocked_in: { name: 'CLOCKED IN', description: 'Complete your first run.' },
   regional_disruption: { name: 'REGIONAL DISRUPTION', description: 'Defeat the Regional Director.' },
   chaos_consultant: { name: 'CHAOS CONSULTANT', description: 'Clear at least 35 hazards in one shift.' },
-  office_legend: { name: 'OFFICE LEGEND', description: 'Score 11,000 or more.' },
+  office_legend: { name: 'OFFICE LEGEND', description: 'Earn an Office Legend rank or better.' },
   dual_department: { name: 'DUAL DEPARTMENT', description: 'Win with both recruits.' },
 };
 
@@ -76,7 +76,7 @@ export class ProfileStore {
       'clocked_in',
       ...(result.bossDefeated ? ['regional_disruption'] : []),
       ...(result.hazardsCleared >= 35 ? ['chaos_consultant'] : []),
-      ...(result.score >= 11000 ? ['office_legend'] : []),
+      ...(['OFFICE LEGEND', 'CHAOS EXECUTIVE'].includes(result.rank) ? ['office_legend'] : []),
       ...(profile.characterWins['red-recruit'] > 0 && profile.characterWins['blue-recruit'] > 0 ? ['dual_department'] : []),
     ];
     const unlocked = candidates.filter((id) => !profile.achievements.includes(id));

@@ -27,7 +27,7 @@ export const HAZARDS: Record<HazardId, HazardDefinition> = {
   hr: { id: 'hr', name: 'HR Intervention', texture: 'hazard-hr', behavior: 'orbit', health: 5, speed: 0.78, damage: 14, score: 460, coins: 3, scale: 0.86, color: 0x9ce65c, unlockAt: 0.34, weight: 8, telegraph: 'POLICY UPDATE' },
   client: { id: 'client', name: 'Client Call', texture: 'hazard-client', behavior: 'persistent', health: 4, speed: 0.93, damage: 13, score: 390, coins: 3, scale: 0.88, color: 0xff9f43, unlockAt: 0.4, weight: 7, telegraph: 'INCOMING CALL' },
   deadline: { id: 'deadline', name: 'Impossible Deadline', texture: 'hazard-deadline', behavior: 'timed', health: 5, speed: 0, damage: 26, score: 540, coins: 4, scale: 0.9, color: 0xff4d8d, unlockAt: 0.55, weight: 4, telegraph: 'DEADLINE ARMED' },
-  review: { id: 'review', name: 'Performance Review', texture: 'hazard-review', behavior: 'freeze', health: 6, speed: 0.72, damage: 16, score: 620, coins: 4, scale: 0.9, color: 0x5ce1e6, unlockAt: 0.66, weight: 3, telegraph: 'RATING PENDING' },
+  review: { id: 'review', name: 'Performance Review', texture: 'hazard-review', behavior: 'freeze', health: 6, speed: 0.8, damage: 16, score: 620, coins: 4, scale: 0.9, color: 0x5ce1e6, unlockAt: 0.66, weight: 4, telegraph: 'RATING PENDING' },
 };
 
 export function availableHazards(ratio: number): HazardDefinition[] {

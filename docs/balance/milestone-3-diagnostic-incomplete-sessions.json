@@ -1,0 +1,2764 @@
+[
+  {
+    "index": 0,
+    "id": "baseline-01",
+    "seed": 310001,
+    "character": "red-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 88.27,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 168,
+    "damageReceived": 16,
+    "blockedHits": 0,
+    "coins": 201,
+    "score": 224949,
+    "hazardsCleared": 677,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "reply",
+      "reply"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "coffee",
+          "snack"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "reply",
+          "printer",
+          "shield"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "snack"
+        ],
+        "selected": "reply"
+      }
+    ],
+    "events": [
+      "performance-review",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 456,
+      "meeting": 143,
+      "kpi": 65,
+      "manager": 0,
+      "hr": 14,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 454,
+      "meeting": 142,
+      "kpi": 65,
+      "manager": 0,
+      "hr": 13,
+      "client": 3,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 16,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 1,
+    "id": "baseline-02",
+    "seed": 317920,
+    "character": "blue-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 86.36,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 161.9,
+    "damageReceived": 21,
+    "blockedHits": 1,
+    "coins": 231,
+    "score": 219848,
+    "hazardsCleared": 691,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "reply",
+      "reply"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "snack"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "escape",
+          "coffee",
+          "reply"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "shield",
+          "snack",
+          "reply"
+        ],
+        "selected": "reply"
+      }
+    ],
+    "events": [
+      "calendar-purge",
+      "performance-review"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 480,
+      "meeting": 125,
+      "kpi": 72,
+      "manager": 0,
+      "hr": 13,
+      "client": 6,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 478,
+      "meeting": 125,
+      "kpi": 71,
+      "manager": 0,
+      "hr": 11,
+      "client": 6,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 21,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 2,
+    "id": "baseline-03",
+    "seed": 325839,
+    "character": "red-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.62,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 166.7,
+    "damageReceived": 40,
+    "blockedHits": 0,
+    "coins": 341,
+    "score": 240568,
+    "hazardsCleared": 760,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "shield",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "coffee",
+          "snack"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "snack"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "snack",
+          "shield",
+          "reply"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "reply-storm",
+      "printer-rebellion"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 546,
+      "meeting": 108,
+      "kpi": 84,
+      "manager": 0,
+      "hr": 17,
+      "client": 11,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 545,
+      "meeting": 107,
+      "kpi": 84,
+      "manager": 0,
+      "hr": 14,
+      "client": 10,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 40,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 3,
+    "id": "baseline-04",
+    "seed": 333758,
+    "character": "blue-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 86.05,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 158.5,
+    "damageReceived": 34,
+    "blockedHits": 2,
+    "coins": 503,
+    "score": 197561,
+    "hazardsCleared": 666,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "coffee",
+      "snack"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "escape",
+          "coffee"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "reply",
+          "snack",
+          "coffee"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "escape",
+          "snack",
+          "printer"
+        ],
+        "selected": "snack"
+      }
+    ],
+    "events": [
+      "printer-rebellion",
+      "calendar-purge"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 484,
+      "meeting": 128,
+      "kpi": 55,
+      "manager": 0,
+      "hr": 9,
+      "client": 1,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 482,
+      "meeting": 121,
+      "kpi": 55,
+      "manager": 0,
+      "hr": 7,
+      "client": 1,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 21,
+      "meeting": 13,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 4,
+    "id": "baseline-05",
+    "seed": 341677,
+    "character": "red-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 86.25,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 163.8,
+    "damageReceived": 32,
+    "blockedHits": 0,
+    "coins": 300,
+    "score": 223426,
+    "hazardsCleared": 759,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "escape",
+      "shield",
+      "escape"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "coffee",
+          "printer"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "snack",
+          "shield",
+          "escape"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "escape",
+          "reply",
+          "coffee"
+        ],
+        "selected": "escape"
+      }
+    ],
+    "events": [
+      "printer-rebellion",
+      "reply-storm"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 586,
+      "meeting": 91,
+      "kpi": 71,
+      "manager": 0,
+      "hr": 12,
+      "client": 8,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 584,
+      "meeting": 90,
+      "kpi": 69,
+      "manager": 0,
+      "hr": 9,
+      "client": 7,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 32,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 5,
+    "id": "baseline-06",
+    "seed": 349596,
+    "character": "blue-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.58,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 177.4,
+    "damageReceived": 35,
+    "blockedHits": 2,
+    "coins": 698,
+    "score": 238320,
+    "hazardsCleared": 739,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "shield",
+      "shield",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "printer"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "shield",
+          "printer",
+          "reply"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "coffee"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "calendar-purge",
+      "printer-rebellion"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 474,
+      "meeting": 149,
+      "kpi": 105,
+      "manager": 1,
+      "hr": 24,
+      "client": 5,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 472,
+      "meeting": 147,
+      "kpi": 105,
+      "manager": 1,
+      "hr": 9,
+      "client": 5,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 24,
+      "meeting": 6,
+      "kpi": 5,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 6,
+    "id": "baseline-07",
+    "seed": 357515,
+    "character": "red-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.91,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 157.2,
+    "damageReceived": 8,
+    "blockedHits": 0,
+    "coins": 182,
+    "score": 241283,
+    "hazardsCleared": 690,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "printer",
+      "coffee",
+      "printer"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "reply",
+          "coffee",
+          "printer"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "coffee",
+          "reply",
+          "shield"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "snack"
+        ],
+        "selected": "printer"
+      }
+    ],
+    "events": [
+      "reply-storm",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 507,
+      "meeting": 119,
+      "kpi": 62,
+      "manager": 0,
+      "hr": 8,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 504,
+      "meeting": 118,
+      "kpi": 62,
+      "manager": 0,
+      "hr": 6,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 8,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 7,
+    "id": "baseline-08",
+    "seed": 365434,
+    "character": "blue-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.46,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 156.8,
+    "damageReceived": 18,
+    "blockedHits": 1,
+    "coins": 516,
+    "score": 217648,
+    "hazardsCleared": 704,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "shield",
+      "coffee",
+      "printer"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "snack",
+          "reply",
+          "shield"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "coffee",
+          "snack",
+          "shield"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "coffee"
+        ],
+        "selected": "printer"
+      }
+    ],
+    "events": [
+      "printer-rebellion",
+      "reply-storm"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 513,
+      "meeting": 116,
+      "kpi": 70,
+      "manager": 0,
+      "hr": 10,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 506,
+      "meeting": 116,
+      "kpi": 70,
+      "manager": 0,
+      "hr": 8,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 18,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 8,
+    "id": "baseline-09",
+    "seed": 373353,
+    "character": "red-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.72,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 156.1,
+    "damageReceived": 16,
+    "blockedHits": 0,
+    "coins": 263,
+    "score": 214740,
+    "hazardsCleared": 682,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "reply",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "reply",
+          "escape",
+          "printer"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "printer",
+          "coffee",
+          "reply"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "snack"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "reply-storm",
+      "printer-rebellion"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 472,
+      "meeting": 115,
+      "kpi": 92,
+      "manager": 0,
+      "hr": 8,
+      "client": 3,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 470,
+      "meeting": 115,
+      "kpi": 87,
+      "manager": 0,
+      "hr": 7,
+      "client": 3,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 16,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 9,
+    "id": "baseline-10",
+    "seed": 381272,
+    "character": "blue-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 86.52,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 153.7,
+    "damageReceived": 14,
+    "blockedHits": 2,
+    "coins": 298,
+    "score": 197195,
+    "hazardsCleared": 646,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "snack",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "snack"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "snack",
+          "escape",
+          "printer"
+        ],
+        "selected": "snack"
+      },
+      {
+        "offered": [
+          "shield",
+          "escape",
+          "coffee"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "performance-review",
+      "calendar-purge"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 465,
+      "meeting": 130,
+      "kpi": 50,
+      "manager": 0,
+      "hr": 8,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 464,
+      "meeting": 126,
+      "kpi": 49,
+      "manager": 0,
+      "hr": 7,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 14,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 10,
+    "id": "baseline-11",
+    "seed": 389191,
+    "character": "red-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.52,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 174.5,
+    "damageReceived": 40,
+    "blockedHits": 0,
+    "coins": 293,
+    "score": 236174,
+    "hazardsCleared": 720,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "reply",
+      "snack"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "printer"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "reply",
+          "printer",
+          "shield"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "snack"
+        ],
+        "selected": "snack"
+      }
+    ],
+    "events": [
+      "printer-rebellion",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 474,
+      "meeting": 141,
+      "kpi": 85,
+      "manager": 0,
+      "hr": 22,
+      "client": 6,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 474,
+      "meeting": 141,
+      "kpi": 84,
+      "manager": 0,
+      "hr": 15,
+      "client": 6,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 24,
+      "meeting": 16,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 11,
+    "id": "baseline-12",
+    "seed": 397110,
+    "character": "blue-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.68,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 158.5,
+    "damageReceived": 14,
+    "blockedHits": 1,
+    "coins": 532,
+    "score": 207107,
+    "hazardsCleared": 679,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "snack",
+      "snack",
+      "coffee"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "coffee",
+          "printer",
+          "snack"
+        ],
+        "selected": "snack"
+      },
+      {
+        "offered": [
+          "shield",
+          "snack",
+          "coffee"
+        ],
+        "selected": "snack"
+      },
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "reply"
+        ],
+        "selected": "coffee"
+      }
+    ],
+    "events": [
+      "performance-review",
+      "calendar-purge"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 482,
+      "meeting": 141,
+      "kpi": 61,
+      "manager": 0,
+      "hr": 4,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 481,
+      "meeting": 134,
+      "kpi": 61,
+      "manager": 0,
+      "hr": 3,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 14,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 12,
+    "id": "baseline-13",
+    "seed": 405029,
+    "character": "red-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.74,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 162.5,
+    "damageReceived": 8,
+    "blockedHits": 0,
+    "coins": 299,
+    "score": 223842,
+    "hazardsCleared": 684,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "escape",
+      "coffee"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "coffee",
+          "escape",
+          "reply"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "snack",
+          "shield",
+          "escape"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "snack",
+          "printer",
+          "coffee"
+        ],
+        "selected": "coffee"
+      }
+    ],
+    "events": [
+      "wellness-hour",
+      "printer-rebellion"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 449,
+      "meeting": 120,
+      "kpi": 110,
+      "manager": 0,
+      "hr": 10,
+      "client": 2,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 447,
+      "meeting": 117,
+      "kpi": 109,
+      "manager": 0,
+      "hr": 9,
+      "client": 2,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 8,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 13,
+    "id": "baseline-14",
+    "seed": 412948,
+    "character": "blue-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 57.61,
+    "timedOut": false,
+    "outcome": "defeat",
+    "survivedSeconds": 90.2,
+    "damageReceived": 120,
+    "blockedHits": 2,
+    "coins": 201,
+    "score": 92071,
+    "hazardsCleared": 393,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "coffee",
+          "reply",
+          "snack"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "reply",
+          "shield",
+          "printer"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "calendar-purge"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 350,
+      "meeting": 61,
+      "kpi": 5,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 342,
+      "meeting": 50,
+      "kpi": 1,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 40,
+      "meeting": 80,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 14,
+    "id": "baseline-15",
+    "seed": 420867,
+    "character": "red-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.83,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 162.5,
+    "damageReceived": 29,
+    "blockedHits": 0,
+    "coins": 195,
+    "score": 226558,
+    "hazardsCleared": 745,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "reply",
+      "reply"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "coffee"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "escape"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "escape",
+          "reply",
+          "shield"
+        ],
+        "selected": "reply"
+      }
+    ],
+    "events": [
+      "reply-storm",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 532,
+      "meeting": 127,
+      "kpi": 66,
+      "manager": 0,
+      "hr": 16,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 532,
+      "meeting": 127,
+      "kpi": 66,
+      "manager": 0,
+      "hr": 16,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 16,
+      "meeting": 0,
+      "kpi": 13,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 15,
+    "id": "baseline-16",
+    "seed": 428786,
+    "character": "blue-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 86.18,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 186.4,
+    "damageReceived": 14,
+    "blockedHits": 2,
+    "coins": 519,
+    "score": 297045,
+    "hazardsCleared": 744,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "printer",
+      "snack",
+      "printer",
+      "printer"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "printer",
+          "coffee"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "snack",
+          "shield",
+          "escape"
+        ],
+        "selected": "snack"
+      },
+      {
+        "offered": [
+          "printer",
+          "coffee",
+          "shield"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "printer"
+        ],
+        "selected": "printer"
+      }
+    ],
+    "events": [
+      "performance-review",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 521,
+      "meeting": 105,
+      "kpi": 86,
+      "manager": 4,
+      "hr": 19,
+      "client": 16,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 519,
+      "meeting": 103,
+      "kpi": 85,
+      "manager": 4,
+      "hr": 17,
+      "client": 16,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 14,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 16,
+    "id": "baseline-17",
+    "seed": 436705,
+    "character": "red-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.64,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 169.9,
+    "damageReceived": 24,
+    "blockedHits": 0,
+    "coins": 302,
+    "score": 242265,
+    "hazardsCleared": 775,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "coffee",
+      "coffee"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "printer",
+          "coffee",
+          "snack"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "coffee",
+          "shield",
+          "printer"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "snack",
+          "shield",
+          "coffee"
+        ],
+        "selected": "coffee"
+      }
+    ],
+    "events": [
+      "wellness-hour",
+      "reply-storm"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 566,
+      "meeting": 131,
+      "kpi": 63,
+      "manager": 0,
+      "hr": 14,
+      "client": 13,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 564,
+      "meeting": 127,
+      "kpi": 61,
+      "manager": 0,
+      "hr": 10,
+      "client": 13,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 24,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 17,
+    "id": "baseline-18",
+    "seed": 444624,
+    "character": "blue-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.88,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 156.9,
+    "damageReceived": 14,
+    "blockedHits": 1,
+    "coins": 571,
+    "score": 203460,
+    "hazardsCleared": 648,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "escape",
+      "escape",
+      "escape"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "reply",
+          "escape",
+          "snack"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "reply",
+          "shield",
+          "escape"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "escape",
+          "printer",
+          "coffee"
+        ],
+        "selected": "escape"
+      }
+    ],
+    "events": [
+      "calendar-purge",
+      "printer-rebellion"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 435,
+      "meeting": 118,
+      "kpi": 92,
+      "manager": 0,
+      "hr": 9,
+      "client": 3,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 434,
+      "meeting": 118,
+      "kpi": 88,
+      "manager": 0,
+      "hr": 6,
+      "client": 2,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 14,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 18,
+    "id": "baseline-19",
+    "seed": 452543,
+    "character": "red-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 86.06,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 154.3,
+    "damageReceived": 16,
+    "blockedHits": 0,
+    "coins": 298,
+    "score": 226769,
+    "hazardsCleared": 720,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "escape",
+      "shield",
+      "escape"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "shield",
+          "reply"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "printer",
+          "snack",
+          "shield"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "printer",
+          "escape",
+          "coffee"
+        ],
+        "selected": "escape"
+      }
+    ],
+    "events": [
+      "printer-rebellion",
+      "performance-review"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 520,
+      "meeting": 123,
+      "kpi": 79,
+      "manager": 0,
+      "hr": 10,
+      "client": 2,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 516,
+      "meeting": 120,
+      "kpi": 79,
+      "manager": 0,
+      "hr": 3,
+      "client": 2,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 16,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 19,
+    "id": "baseline-20",
+    "seed": 460462,
+    "character": "blue-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.42,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 153.7,
+    "damageReceived": 21,
+    "blockedHits": 1,
+    "coins": 530,
+    "score": 223609,
+    "hazardsCleared": 736,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "shield",
+      "shield",
+      "escape"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "snack",
+          "coffee"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "snack"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "escape",
+          "printer",
+          "shield"
+        ],
+        "selected": "escape"
+      }
+    ],
+    "events": [
+      "printer-rebellion",
+      "performance-review"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 520,
+      "meeting": 128,
+      "kpi": 86,
+      "manager": 0,
+      "hr": 8,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 517,
+      "meeting": 127,
+      "kpi": 85,
+      "manager": 0,
+      "hr": 4,
+      "client": 3,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 21,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 20,
+    "id": "baseline-21",
+    "seed": 468381,
+    "character": "red-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.4,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 189.8,
+    "damageReceived": 24,
+    "blockedHits": 0,
+    "coins": 263,
+    "score": 314520,
+    "hazardsCleared": 657,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "printer",
+      "printer",
+      "printer",
+      "printer"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "printer",
+          "coffee"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "printer"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "shield",
+          "escape",
+          "printer"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "reply",
+          "printer",
+          "coffee"
+        ],
+        "selected": "printer"
+      }
+    ],
+    "events": [
+      "wellness-hour",
+      "calendar-purge"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 413,
+      "meeting": 135,
+      "kpi": 82,
+      "manager": 7,
+      "hr": 19,
+      "client": 6,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 413,
+      "meeting": 134,
+      "kpi": 81,
+      "manager": 6,
+      "hr": 17,
+      "client": 6,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 24,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 21,
+    "id": "baseline-22",
+    "seed": 476300,
+    "character": "blue-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.44,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 182.3,
+    "damageReceived": 38,
+    "blockedHits": 2,
+    "coins": 555,
+    "score": 264247,
+    "hazardsCleared": 735,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "escape",
+      "printer",
+      "escape",
+      "escape"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "escape"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "printer",
+          "coffee",
+          "escape"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "escape",
+          "coffee",
+          "shield"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "escape"
+        ],
+        "selected": "escape"
+      }
+    ],
+    "events": [
+      "calendar-purge",
+      "reply-storm"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 497,
+      "meeting": 154,
+      "kpi": 64,
+      "manager": 2,
+      "hr": 23,
+      "client": 8,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 497,
+      "meeting": 153,
+      "kpi": 63,
+      "manager": 2,
+      "hr": 12,
+      "client": 8,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 28,
+      "meeting": 0,
+      "kpi": 10,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 22,
+    "id": "baseline-23",
+    "seed": 484219,
+    "character": "red-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.55,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 159.4,
+    "damageReceived": 32,
+    "blockedHits": 0,
+    "coins": 240,
+    "score": 208764,
+    "hazardsCleared": 684,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "reply",
+      "reply"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "snack"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "reply",
+          "snack",
+          "printer"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "printer"
+        ],
+        "selected": "reply"
+      }
+    ],
+    "events": [
+      "calendar-purge",
+      "reply-storm"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 489,
+      "meeting": 134,
+      "kpi": 60,
+      "manager": 0,
+      "hr": 11,
+      "client": 1,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 487,
+      "meeting": 130,
+      "kpi": 59,
+      "manager": 0,
+      "hr": 8,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 32,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 23,
+    "id": "baseline-24",
+    "seed": 492138,
+    "character": "blue-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.7,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 162,
+    "damageReceived": 21,
+    "blockedHits": 1,
+    "coins": 337,
+    "score": 210696,
+    "hazardsCleared": 654,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "coffee",
+      "printer"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "reply",
+          "printer"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "coffee",
+          "shield",
+          "escape"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "snack",
+          "printer",
+          "shield"
+        ],
+        "selected": "printer"
+      }
+    ],
+    "events": [
+      "calendar-purge",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 453,
+      "meeting": 119,
+      "kpi": 68,
+      "manager": 0,
+      "hr": 19,
+      "client": 5,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 450,
+      "meeting": 119,
+      "kpi": 66,
+      "manager": 0,
+      "hr": 14,
+      "client": 5,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 21,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 24,
+    "id": "baseline-25",
+    "seed": 500057,
+    "character": "red-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.76,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 158.3,
+    "damageReceived": 24,
+    "blockedHits": 0,
+    "coins": 220,
+    "score": 209574,
+    "hazardsCleared": 670,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "snack",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "escape"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "coffee",
+          "reply",
+          "snack"
+        ],
+        "selected": "snack"
+      },
+      {
+        "offered": [
+          "printer",
+          "shield",
+          "escape"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "performance-review",
+      "reply-storm"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 493,
+      "meeting": 113,
+      "kpi": 53,
+      "manager": 0,
+      "hr": 12,
+      "client": 5,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 489,
+      "meeting": 113,
+      "kpi": 53,
+      "manager": 0,
+      "hr": 10,
+      "client": 5,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 24,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 25,
+    "id": "baseline-26",
+    "seed": 507976,
+    "character": "blue-recruit",
+    "strategy": "aggressive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.38,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 189.5,
+    "damageReceived": 20,
+    "blockedHits": 2,
+    "coins": 398,
+    "score": 227518,
+    "hazardsCleared": 758,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "shield",
+      "shield",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "reply",
+          "coffee",
+          "printer"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "snack",
+          "coffee",
+          "shield"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "reply",
+          "snack",
+          "shield"
+        ],
+        "selected": "shield"
+      },
+      {
+        "offered": [
+          "shield",
+          "escape",
+          "snack"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "calendar-purge",
+      "reply-storm"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 544,
+      "meeting": 128,
+      "kpi": 68,
+      "manager": 7,
+      "hr": 20,
+      "client": 9,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 543,
+      "meeting": 125,
+      "kpi": 66,
+      "manager": 6,
+      "hr": 9,
+      "client": 9,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 7,
+      "meeting": 13,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 26,
+    "id": "baseline-27",
+    "seed": 515895,
+    "character": "red-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.34,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 201.6,
+    "damageReceived": 0,
+    "blockedHits": 0,
+    "coins": 371,
+    "score": 339400,
+    "hazardsCleared": 758,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "printer",
+      "coffee",
+      "printer",
+      "escape"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "printer",
+          "escape",
+          "snack"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "snack",
+          "coffee",
+          "reply"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "printer",
+          "shield",
+          "escape"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "escape",
+          "reply",
+          "shield"
+        ],
+        "selected": "escape"
+      }
+    ],
+    "events": [
+      "performance-review",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 492,
+      "meeting": 150,
+      "kpi": 78,
+      "manager": 12,
+      "hr": 20,
+      "client": 14,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 491,
+      "meeting": 148,
+      "kpi": 77,
+      "manager": 11,
+      "hr": 18,
+      "client": 13,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 0,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 27,
+    "id": "baseline-28",
+    "seed": 523814,
+    "character": "blue-recruit",
+    "strategy": "balanced",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.35,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 193.1,
+    "damageReceived": 14,
+    "blockedHits": 2,
+    "coins": 655,
+    "score": 245486,
+    "hazardsCleared": 719,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "escape",
+      "escape",
+      "escape",
+      "printer"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "reply",
+          "coffee"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "escape",
+          "reply",
+          "shield"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "coffee",
+          "escape",
+          "shield"
+        ],
+        "selected": "escape"
+      },
+      {
+        "offered": [
+          "shield",
+          "printer",
+          "coffee"
+        ],
+        "selected": "printer"
+      }
+    ],
+    "events": [
+      "printer-rebellion",
+      "calendar-purge"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 468,
+      "meeting": 152,
+      "kpi": 75,
+      "manager": 8,
+      "hr": 20,
+      "client": 13,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 466,
+      "meeting": 151,
+      "kpi": 75,
+      "manager": 7,
+      "hr": 7,
+      "client": 13,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 14,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 28,
+    "id": "baseline-29",
+    "seed": 531733,
+    "character": "red-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.3,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 191.9,
+    "damageReceived": 32,
+    "blockedHits": 0,
+    "coins": 367,
+    "score": 308466,
+    "hazardsCleared": 743,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "printer",
+      "printer",
+      "reply",
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "escape",
+          "shield",
+          "printer"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "snack",
+          "printer",
+          "shield"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "printer",
+          "reply",
+          "escape"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "shield",
+          "snack",
+          "coffee"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [
+      "wellness-hour",
+      "printer-rebellion"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 509,
+      "meeting": 109,
+      "kpi": 90,
+      "manager": 7,
+      "hr": 22,
+      "client": 10,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 509,
+      "meeting": 108,
+      "kpi": 90,
+      "manager": 6,
+      "hr": 20,
+      "client": 10,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 16,
+      "meeting": 16,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 29,
+    "id": "baseline-30",
+    "seed": 539652,
+    "character": "blue-recruit",
+    "strategy": "defensive",
+    "cohort": "baseline",
+    "acceleratedRate": 8,
+    "realSeconds": 85.5,
+    "timedOut": true,
+    "outcome": "timeout",
+    "survivedSeconds": 193.2,
+    "damageReceived": 20,
+    "blockedHits": 2,
+    "coins": 444,
+    "score": 271478,
+    "hazardsCleared": 690,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "printer",
+      "reply",
+      "reply",
+      "printer"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "coffee",
+          "printer",
+          "escape"
+        ],
+        "selected": "printer"
+      },
+      {
+        "offered": [
+          "reply",
+          "coffee",
+          "escape"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "shield",
+          "reply",
+          "coffee"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "coffee",
+          "snack",
+          "printer"
+        ],
+        "selected": "printer"
+      }
+    ],
+    "events": [
+      "performance-review",
+      "wellness-hour"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 462,
+      "meeting": 137,
+      "kpi": 69,
+      "manager": 2,
+      "hr": 17,
+      "client": 9,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 461,
+      "meeting": 136,
+      "kpi": 66,
+      "manager": 1,
+      "hr": 17,
+      "client": 9,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 7,
+      "meeting": 13,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  }
+]

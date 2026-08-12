@@ -78,6 +78,7 @@ describe('ProfileStore', () => {
       bossDefeated: true,
       hazardsCleared: 35,
       score: 12000,
+      rank: 'OFFICE LEGEND',
       runCoins: 18,
       character: 'red-recruit',
     }));
@@ -88,6 +89,7 @@ describe('ProfileStore', () => {
       bossDefeated: true,
       hazardsCleared: 35,
       score: 12000,
+      rank: 'OFFICE LEGEND',
       character: 'red-recruit',
     }));
     expect(duplicate.unlocked).toEqual([]);
@@ -103,5 +105,11 @@ describe('ProfileStore', () => {
     const result = store.recordRun(runResult({ score: 900, runCoins: 4 }));
     expect(result.profile).toMatchObject({ version: PROFILE_SCHEMA_VERSION, runs: 1, highScore: 900, totalCoins: 4 });
     expect(result.unlocked).toEqual(['clocked_in']);
+  });
+
+  it('unlocks Office Legend from the authoritative rank instead of a stale score threshold', () => {
+    const store = new ProfileStore(new MemoryStorage());
+    expect(store.recordRun(runResult({ score: 400_000, rank: 'PROMISING RECRUIT' })).unlocked).toEqual(['clocked_in']);
+    expect(store.recordRun(runResult({ score: 320_000, rank: 'OFFICE LEGEND' })).unlocked).toEqual(['office_legend']);
   });
 });

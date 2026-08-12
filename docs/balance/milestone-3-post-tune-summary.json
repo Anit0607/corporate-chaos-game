@@ -1,0 +1,154 @@
+{
+  "cohort": "post-tune",
+  "generatedAt": "2026-08-12T07:36:40.865Z",
+  "sessions": 12,
+  "durationSeconds": 360,
+  "acceleratedRate": 8,
+  "outcomes": {
+    "victories": 12,
+    "defeats": 0,
+    "timeouts": 0
+  },
+  "characters": {
+    "red-recruit": {
+      "sessions": 6,
+      "victories": 6,
+      "timeouts": 0,
+      "averageSurvival": 360,
+      "averageDamage": 15,
+      "averageScore": 396264.67,
+      "averageCoins": 776.5,
+      "averageClears": 748,
+      "bossReached": 6,
+      "bossDefeated": 6
+    },
+    "blue-recruit": {
+      "sessions": 6,
+      "victories": 6,
+      "timeouts": 0,
+      "averageSurvival": 360,
+      "averageDamage": 24.83,
+      "averageScore": 359248,
+      "averageCoins": 979,
+      "averageClears": 724.5,
+      "bossReached": 6,
+      "bossDefeated": 6
+    }
+  },
+  "hazards": {
+    "email": {
+      "spawned": 4831,
+      "cleared": 4795,
+      "clearRate": 0.993,
+      "damage": 138
+    },
+    "meeting": {
+      "spawned": 1579,
+      "cleared": 1528,
+      "clearRate": 0.968,
+      "damage": 33
+    },
+    "kpi": {
+      "spawned": 1292,
+      "cleared": 1273,
+      "clearRate": 0.985,
+      "damage": 38
+    },
+    "manager": {
+      "spawned": 377,
+      "cleared": 354,
+      "clearRate": 0.939,
+      "damage": 0
+    },
+    "hr": {
+      "spawned": 435,
+      "cleared": 313,
+      "clearRate": 0.72,
+      "damage": 10
+    },
+    "client": {
+      "spawned": 408,
+      "cleared": 400,
+      "clearRate": 0.98,
+      "damage": 7
+    },
+    "deadline": {
+      "spawned": 166,
+      "cleared": 39,
+      "clearRate": 0.235,
+      "damage": 0
+    },
+    "review": {
+      "spawned": 137,
+      "cleared": 133,
+      "clearRate": 0.971,
+      "damage": 13
+    }
+  },
+  "perks": {
+    "coffee": {
+      "offered": 53,
+      "selected": 19,
+      "pickWhenOffered": 0.358
+    },
+    "reply": {
+      "offered": 42,
+      "selected": 15,
+      "pickWhenOffered": 0.357
+    },
+    "shield": {
+      "offered": 34,
+      "selected": 14,
+      "pickWhenOffered": 0.412
+    },
+    "escape": {
+      "offered": 43,
+      "selected": 5,
+      "pickWhenOffered": 0.116
+    },
+    "printer": {
+      "offered": 31,
+      "selected": 11,
+      "pickWhenOffered": 0.355
+    },
+    "snack": {
+      "offered": 49,
+      "selected": 20,
+      "pickWhenOffered": 0.408
+    }
+  },
+  "events": {
+    "reply-storm": {
+      "appearances": 8,
+      "victories": 8,
+      "averageDamage": 17.13
+    },
+    "wellness-hour": {
+      "appearances": 8,
+      "victories": 8,
+      "averageDamage": 21.13
+    },
+    "calendar-purge": {
+      "appearances": 7,
+      "victories": 7,
+      "averageDamage": 19.43
+    },
+    "performance-review": {
+      "appearances": 8,
+      "victories": 8,
+      "averageDamage": 21.13
+    },
+    "printer-rebellion": {
+      "appearances": 8,
+      "victories": 8,
+      "averageDamage": 18.13
+    }
+  },
+  "bossPhaseDistribution": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 12
+  }
+}

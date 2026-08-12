@@ -99,4 +99,20 @@ describe('ShiftSimulation', () => {
     simulation.damageBoss(simulation.bossMaxHealth);
     expect(simulation.tick(0.016)).toBe('victory');
   });
+
+  it('scales meaningful performance ranks to the configured shift duration', () => {
+    const standard = new ShiftSimulation(360);
+    standard.score = 319_999;
+    expect(standard.result(0).rank).toBe('PROMISING RECRUIT');
+    standard.score = 320_000;
+    expect(standard.result(0).rank).toBe('OFFICE LEGEND');
+    standard.score = 400_000;
+    expect(standard.result(0).rank).toBe('CHAOS EXECUTIVE');
+
+    const short = new ShiftSimulation(60);
+    short.score = 53_332;
+    expect(short.result(0).rank).toBe('PROMISING RECRUIT');
+    short.score = 53_333;
+    expect(short.result(0).rank).toBe('OFFICE LEGEND');
+  });
 });

@@ -60,6 +60,12 @@ pnpm test:browser
 
 The browser suite covers character selection, movement, dash, automatic combat, pause/resume, focus loss, perks, event timing, all boss phases, victory, replay, defeat, cleanup and a 900x600 compact layout. Its simulation bridge is available only in local development when the suite loads the game with `?e2e=1`; production and normal gameplay do not expose it.
 
+Milestone 3 balance evidence is in `docs/balance/`. The structured runner can accelerate only local development sessions and records resumable JSON/CSV evidence:
+
+```bash
+BALANCE_COHORT=local-check BALANCE_SESSION_COUNT=2 BALANCE_CONCURRENCY=1 node scripts/balance-sessions.mjs
+```
+
 ## Architecture
 
 - `src/game/simulation`: deterministic game rules and scoring

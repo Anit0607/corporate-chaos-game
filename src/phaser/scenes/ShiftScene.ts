@@ -13,8 +13,37 @@ import { PlayerController } from '../systems/PlayerController';
 
 type SceneHazardKind = HazardId | 'boss';
 
+interface RunTelemetry {
+  damageReceived: number;
+  blockedHits: number;
+  deadlineDetonations: number;
+  deadlineDodges: number;
+  spawnedByHazard: Record<string, number>;
+  clearedByHazard: Record<string, number>;
+  damageBySource: Record<string, number>;
+  eventHistory: string[];
+  perkChoices: string[];
+  bossPhaseReached: number;
+}
+
+const emptyHazardCounts = (): Record<string, number> => Object.fromEntries([...Object.keys(HAZARDS), 'boss'].map((id) => [id, 0]));
+
+const createRunTelemetry = (): RunTelemetry => ({
+  damageReceived: 0,
+  blockedHits: 0,
+  deadlineDetonations: 0,
+  deadlineDodges: 0,
+  spawnedByHazard: emptyHazardCounts(),
+  clearedByHazard: emptyHazardCounts(),
+  damageBySource: emptyHazardCounts(),
+  eventHistory: [],
+  perkChoices: [],
+  bossPhaseReached: 0,
+});
+
 export interface ShiftSceneIntegrationSnapshot {
   running: boolean;
+  balanceRate: number;
   manuallyPaused: boolean;
   perkPaused: boolean;
   character: CharacterId;
@@ -24,6 +53,11 @@ export interface ShiftSceneIntegrationSnapshot {
     duration: number;
     energy: number;
     maxEnergy: number;
+    score: number;
+    runCoins: number;
+    hazardsCleared: number;
+    finished: boolean;
+    won: boolean;
     perks: Record<string, number>;
     modifiers: GameplayModifiers;
     activeEventId: string | null;
@@ -35,6 +69,8 @@ export interface ShiftSceneIntegrationSnapshot {
     bossPhase: number;
   };
   activeEntities: { hazards: number; projectiles: number; coins: number; effects: number; timers: number };
+  hazardActors: Array<{ kind: string; x: number; y: number }>;
+  telemetry: RunTelemetry;
   sceneSubscriptions: number;
   busListeners: number;
 }
@@ -60,6 +96,9 @@ export class ShiftScene extends Phaser.Scene {
   private lastShotAt = 0;
   private lastHudAt = 0;
   private lastBossPatternAt = 0;
+  private gameplayTime = 0;
+  private balanceRate = 1;
+  private runTelemetry = createRunTelemetry();
   private chaosOverlay!: Phaser.GameObjects.Rectangle;
   private officeGlow!: Phaser.GameObjects.Rectangle;
   private readonly unsubscribe: Array<() => void> = [];
@@ -106,7 +145,7 @@ export class ShiftScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdownScene, this);
   }
 
-  update(time: number, delta: number): void {
+  update(_time: number, delta: number): void {
     if (!this.running || !this.simulation) return;
 
     if (Phaser.Input.Keyboard.JustDown(this.pauseKey)) {
@@ -115,7 +154,10 @@ export class ShiftScene extends Phaser.Scene {
     }
     if (this.manuallyPaused || this.perkPaused) return;
 
-    const status = this.simulation.tick(delta / 1000);
+    const scaledDelta = delta * this.balanceRate;
+    this.gameplayTime += scaledDelta;
+    const time = this.gameplayTime;
+    const status = this.simulation.tick(scaledDelta / 1000);
     if (status !== 'running') {
       this.finishRun();
       return;
@@ -207,6 +249,7 @@ export class ShiftScene extends Phaser.Scene {
     const simulation = this.simulation;
     return {
       running: this.running,
+      balanceRate: this.balanceRate,
       manuallyPaused: this.manuallyPaused,
       perkPaused: this.perkPaused,
       character: this.selectedCharacter,
@@ -225,6 +268,11 @@ export class ShiftScene extends Phaser.Scene {
         duration: simulation.duration,
         energy: simulation.energy,
         maxEnergy: simulation.maxEnergy,
+        score: simulation.score,
+        runCoins: simulation.runCoins,
+        hazardsCleared: simulation.hazardsCleared,
+        finished: simulation.finished,
+        won: simulation.won,
         perks: Object.fromEntries(simulation.perks),
         modifiers: simulation.gameplayModifiers,
         activeEventId: simulation.activeEvent?.id ?? null,
@@ -242,6 +290,18 @@ export class ShiftScene extends Phaser.Scene {
         effects: this.effects?.activeCount ?? 0,
         timers: this.runTimers.size,
       },
+      hazardActors: (this.hazards?.getChildren() ?? [])
+        .map((child) => child as Phaser.Physics.Arcade.Sprite)
+        .filter((hazard) => hazard.active)
+        .map((hazard) => ({ kind: String(hazard.getData('kind')), x: hazard.x, y: hazard.y })),
+      telemetry: {
+        ...this.runTelemetry,
+        spawnedByHazard: { ...this.runTelemetry.spawnedByHazard },
+        clearedByHazard: { ...this.runTelemetry.clearedByHazard },
+        damageBySource: { ...this.runTelemetry.damageBySource },
+        eventHistory: [...this.runTelemetry.eventHistory],
+        perkChoices: [...this.runTelemetry.perkChoices],
+      },
       sceneSubscriptions: this.unsubscribe.length,
       busListeners: gameBus.listenerCount(),
     };
@@ -250,6 +310,7 @@ export class ShiftScene extends Phaser.Scene {
   integrationDamageBoss(amount: number): void {
     if (!this.simulation?.bossStarted || this.simulation.bossDefeated) return;
     const result = this.simulation.damageBoss(Math.max(0, amount));
+    this.runTelemetry.bossPhaseReached = Math.max(this.runTelemetry.bossPhaseReached, result.phase);
     if (result.defeated) {
       const boss = this.hazards.getChildren().find((child) => (
         (child as Phaser.Physics.Arcade.Sprite).active && (child as Phaser.Physics.Arcade.Sprite).getData('kind') === 'boss'
@@ -288,9 +349,13 @@ export class ShiftScene extends Phaser.Scene {
     const query = new URLSearchParams(window.location.search);
     const queryDuration = Number(query.get('duration'));
     const querySeed = Number(query.get('seed'));
+    const queryBalanceRate = Number(query.get('balanceRate'));
     const configuredDuration = Number(import.meta.env.VITE_SHIFT_DURATION_SECONDS ?? 360);
     const duration = Number.isFinite(queryDuration) && queryDuration > 0 ? queryDuration : configuredDuration;
     const seed = Number.isFinite(querySeed) && querySeed > 0 ? querySeed : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
+    this.balanceRate = import.meta.env.DEV && query.has('balance') && Number.isFinite(queryBalanceRate)
+      ? Phaser.Math.Clamp(queryBalanceRate, 1, 8)
+      : 1;
 
     this.clearRunTimers();
     this.tweens.killAll();
@@ -299,14 +364,19 @@ export class ShiftScene extends Phaser.Scene {
     this.projectiles.clear(true, true);
     this.coins.clear(true, true);
     this.simulation = new ShiftSimulation({ durationSeconds: duration, character: this.selectedCharacter, seed });
+    this.runTelemetry = createRunTelemetry();
     this.running = true;
     this.manuallyPaused = false;
     this.perkPaused = false;
-    this.lastSpawnAt = this.time.now;
-    this.lastShotAt = this.time.now - 1000;
+    this.gameplayTime = 0;
+    this.lastSpawnAt = this.gameplayTime;
+    this.lastShotAt = this.gameplayTime - 1000;
     this.lastHudAt = 0;
     this.lastBossPatternAt = 0;
-    this.playerController.reset(this.time.now);
+    this.playerController.reset(this.gameplayTime);
+    this.time.timeScale = this.balanceRate;
+    this.tweens.timeScale = this.balanceRate;
+    this.physics.world.timeScale = 1 / this.balanceRate;
 
     const character = CHARACTERS[this.selectedCharacter];
     this.player.setTexture(character.texture);
@@ -343,6 +413,9 @@ export class ShiftScene extends Phaser.Scene {
     this.coins.clear(true, true);
     this.player.setVisible(false).setActive(false);
     this.player.body!.enable = false;
+    this.time.timeScale = 1;
+    this.tweens.timeScale = 1;
+    this.physics.world.timeScale = 1;
     gameBus.emit('game:pause', false);
     gameBus.emit('game:menu', undefined);
   }
@@ -374,10 +447,11 @@ export class ShiftScene extends Phaser.Scene {
       coins: chained ? 0 : definition.coins,
       speed: simulation.difficulty.hazardSpeed * definition.speed,
       phase: simulation.random.next() * Math.PI * 2,
-      spawnedAt: this.time.now,
-      fuseAt: definition.behavior === 'timed' ? this.time.now + 7200 : 0,
-      nextPulseAt: this.time.now + simulation.random.integer(1600, 3200),
+      spawnedAt: this.gameplayTime,
+      fuseAt: definition.behavior === 'timed' ? this.gameplayTime + 6500 : 0,
+      nextPulseAt: this.gameplayTime + simulation.random.integer(1600, 3200),
     });
+    this.runTelemetry.spawnedByHazard[kind] += 1;
     const body = sprite.body as Phaser.Physics.Arcade.Body;
     body.setCircle(Math.min(sprite.width, sprite.height) * 0.33);
     this.effects.telegraph(x, y, definition.color, definition.behavior === 'area' ? 58 : 42, 520);
@@ -467,7 +541,7 @@ export class ShiftScene extends Phaser.Scene {
     projectile.setData({
       damage: 1 + CHARACTERS[this.selectedCharacter].stats.projectileDamage + this.simulation!.gameplayModifiers.projectileDamageBonus + (this.simulation!.chaosSeconds > 0 ? 1 : 0),
       pierce: this.simulation!.gameplayModifiers.projectilePierce,
-      expires: this.time.now + 1500,
+      expires: this.gameplayTime + 1500,
     });
     this.physics.velocityFromRotation(angle, 650, projectile.body!.velocity);
     soundboard.play('fire');
@@ -495,6 +569,7 @@ export class ShiftScene extends Phaser.Scene {
 
     if (kind === 'boss') {
       const result = this.simulation!.damageBoss(damage);
+      this.runTelemetry.bossPhaseReached = Math.max(this.runTelemetry.bossPhaseReached, result.phase);
       this.effects.floatingText(hazard.x, hazard.y - 48, `-${damage}`, '#ff9bbf');
       if (result.phaseChanged && !result.defeated) {
         gameBus.emit('game:toast', `REGIONAL DIRECTOR · PHASE ${result.phase} · SCOPE EXPANDED`);
@@ -516,6 +591,7 @@ export class ShiftScene extends Phaser.Scene {
     const x = hazard.x;
     const y = hazard.y;
     hazard.disableBody(true, true);
+    this.runTelemetry.clearedByHazard[kind] += 1;
     if (kind === 'boss') {
       this.effects.burst(x, y, 0xff4d8d, 42);
       this.effects.shake(520, 0.014);
@@ -544,7 +620,7 @@ export class ShiftScene extends Phaser.Scene {
     const coin = this.coins.get(x, y, 'chaos-coin') as Phaser.Physics.Arcade.Sprite | null;
     if (!coin) return;
     coin.enableBody(true, x, y, true, true);
-    coin.setDepth(14).setScale(0.82).setAlpha(1).setData({ value, expires: this.time.now + 9000, phase: Math.random() * 6 });
+    coin.setDepth(14).setScale(0.82).setAlpha(1).setData({ value, expires: this.gameplayTime + 9000, phase: Math.random() * 6 });
     coin.setVelocity(Phaser.Math.Between(-55, 55), Phaser.Math.Between(-55, 55));
     coin.setDrag(180, 180);
   }
@@ -572,11 +648,12 @@ export class ShiftScene extends Phaser.Scene {
   }
 
   private hitPlayer(hazard: Phaser.Physics.Arcade.Sprite): void {
-    const now = this.time.now;
+    const now = this.gameplayTime;
     if (!hazard.active) return;
     const kind = hazard.getData('kind') as SceneHazardKind;
     if (this.playerController.isDashing && kind === 'boss') {
       const result = this.simulation!.damageBoss(3);
+      this.runTelemetry.bossPhaseReached = Math.max(this.runTelemetry.bossPhaseReached, result.phase);
       this.effects.burst(this.player.x, this.player.y, 0x27d9ff, 7);
       if (result.defeated) this.clearHazard(hazard);
       return;
@@ -590,11 +667,14 @@ export class ShiftScene extends Phaser.Scene {
     this.playerController.grantInvulnerability(850);
     const damage = this.simulation!.takeDamage(hazard.getData('damage') as number);
     if (damage === 0) {
+      this.runTelemetry.blockedHits += 1;
       soundboard.play('shield');
       this.effects.telegraph(this.player.x, this.player.y, 0x5ce1e6, 58, 560);
       gameBus.emit('game:toast', 'PROFESSIONAL BOUNDARY · REQUEST DECLINED');
       return;
     }
+    this.runTelemetry.damageReceived += damage;
+    this.runTelemetry.damageBySource[kind] += damage;
     soundboard.play('hit');
     this.effects.shake(180, 0.009);
     this.player.setTint(0xff6f87);
@@ -631,6 +711,7 @@ export class ShiftScene extends Phaser.Scene {
   private applyPerk(id: string): void {
     if (!this.simulation || !PERKS[id]) return;
     this.simulation.applyPerk(id);
+    this.runTelemetry.perkChoices.push(id);
     this.perkPaused = false;
     if (!this.manuallyPaused) this.physics.resume();
     soundboard.play('upgrade');
@@ -650,6 +731,7 @@ export class ShiftScene extends Phaser.Scene {
 
   private triggerCorporateEvent(): void {
     const event = this.simulation!.triggerCorporateEvent();
+    this.runTelemetry.eventHistory.push(event.id);
     gameBus.emit('game:corporate-event', event);
     soundboard.play('event');
     this.effects.telegraph(this.player.x, this.player.y, Phaser.Display.Color.HexStringToColor(event.accent).color, 84, 760);
@@ -667,9 +749,11 @@ export class ShiftScene extends Phaser.Scene {
     if (!boss) return;
     boss.enableBody(true, 640, 150, true, true);
     boss.setDepth(18).setScale(0.92).setAlpha(1).clearTint();
-    boss.setData({ kind: 'boss', damage: 28, score: 0, coins: 0, speed: 60, phase: 0, nextPulseAt: this.time.now + 2600 });
+    boss.setData({ kind: 'boss', damage: 28, score: 0, coins: 0, speed: 60, phase: 0, nextPulseAt: this.gameplayTime + 2600 });
+    this.runTelemetry.spawnedByHazard.boss += 1;
+    this.runTelemetry.bossPhaseReached = 1;
     (boss.body as Phaser.Physics.Arcade.Body).setCircle(45, 11, 10);
-    this.lastBossPatternAt = this.time.now;
+    this.lastBossPatternAt = this.gameplayTime;
     soundboard.play('boss');
     this.effects.telegraph(640, 150, 0xff4d8d, 122, 1100);
     this.effects.shake(420, 0.012);
@@ -708,15 +792,23 @@ export class ShiftScene extends Phaser.Scene {
     const damage = hazard.getData('damage') as number;
     const x = hazard.x;
     const y = hazard.y;
+    const blastRadius = 240;
     hazard.disableBody(true, true);
+    this.runTelemetry.deadlineDetonations += 1;
     this.effects.burst(x, y, HAZARDS.deadline.color, 22);
     this.effects.telegraph(x, y, HAZARDS.deadline.color, 170, 460);
     this.effects.shake(230, 0.009);
-    if (distance < 220 && !this.playerController.isInvulnerable) {
+    if (distance < blastRadius && !this.playerController.isInvulnerable) {
       this.playerController.grantInvulnerability(850);
       const applied = this.simulation!.takeDamage(damage);
+      if (applied === 0) this.runTelemetry.blockedHits += 1;
+      else {
+        this.runTelemetry.damageReceived += applied;
+        this.runTelemetry.damageBySource.deadline += applied;
+      }
       gameBus.emit('game:toast', applied === 0 ? 'BOUNDARY HELD · DEADLINE DECLINED' : `DEADLINE MISSED · -${applied} ENERGY`);
     } else {
+      this.runTelemetry.deadlineDodges += 1;
       gameBus.emit('game:toast', 'DEADLINE DODGED · EXPECT A FOLLOW-UP');
     }
   }
@@ -753,6 +845,9 @@ export class ShiftScene extends Phaser.Scene {
     this.coins.clear(true, true);
     this.player.setVisible(false).setActive(false).setVelocity(0);
     this.player.body!.enable = false;
+    this.time.timeScale = 1;
+    this.tweens.timeScale = 1;
+    this.physics.world.timeScale = 1;
     soundboard.play(result.won ? 'win' : 'lose');
     this.cameras.main.fade(650, result.won ? 10 : 25, result.won ? 42 : 8, result.won ? 61 : 18);
     gameBus.emit('game:result', result);

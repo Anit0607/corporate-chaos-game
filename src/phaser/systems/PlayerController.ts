@@ -18,6 +18,7 @@ export class PlayerController {
   private invulnerableUntil = 0;
   private frozenUntil = 0;
   private frozenVisual = false;
+  private currentTime = 0;
   readonly facing = new Phaser.Math.Vector2(1, 0);
 
   constructor(
@@ -35,6 +36,7 @@ export class PlayerController {
   }
 
   reset(time: number): void {
+    this.currentTime = time;
     this.touchX = 0;
     this.touchY = 0;
     this.pendingDash = false;
@@ -60,22 +62,23 @@ export class PlayerController {
   }
 
   get isInvulnerable(): boolean {
-    return this.scene.time.now < this.invulnerableUntil;
+    return this.currentTime < this.invulnerableUntil;
   }
 
   get isDashing(): boolean {
-    return this.scene.time.now < this.dashUntil;
+    return this.currentTime < this.dashUntil;
   }
 
   get dashReady(): boolean {
-    return this.scene.time.now >= this.readyAt;
+    return this.currentTime >= this.readyAt;
   }
 
   grantInvulnerability(milliseconds: number): void {
-    this.invulnerableUntil = Math.max(this.invulnerableUntil, this.scene.time.now + milliseconds);
+    this.invulnerableUntil = Math.max(this.invulnerableUntil, this.currentTime + milliseconds);
   }
 
   update(time: number, simulation: ShiftSimulation, character: CharacterDefinition): PlayerUpdateResult {
+    this.currentTime = time;
     if (time < this.dashUntil) {
       this.sprite.setVelocity(this.facing.x * 630, this.facing.y * 630);
       this.sprite.setAlpha(0.72 + Math.sin(time * 0.06) * 0.18);
