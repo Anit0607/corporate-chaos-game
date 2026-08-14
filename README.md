@@ -11,7 +11,7 @@ A free workplace-comedy arcade game for desktop browsers and landscape touch dev
 - Eight escalating hazards with distinct behavior and readable telegraphs
 - Five random corporate events that alter pressure, movement, damage or attacks
 - Six upgrade types and a recurring three-choice perk draft
-- A four-phase late-shift Final Escalation against the Regional Director
+- A polished four-phase Final Escalation with a cinematic entrance, distinct directives, safe attack telegraphs and a dedicated defeat sequence
 - Energy, score, Chaos Mode, earned Chaos Coins, win/failure, and replay
 - Persistent high score, run/win history and achievement badges
 - Anonymous provider-neutral analytics
@@ -58,7 +58,7 @@ pnpm dev -- --host 127.0.0.1 --port 4173
 pnpm test:browser
 ```
 
-The browser suite covers character selection, movement, dash, automatic combat, pause/resume, focus loss, perks, event timing, all boss phases, victory, replay, defeat, cleanup and a 900x600 compact layout. Its simulation bridge is available only in local development when the suite loads the game with `?e2e=1`; production and normal gameplay do not expose it.
+The browser suite covers character selection, movement, dash, automatic combat, pause/resume, focus loss, perks, event timing, the boss entrance, all four phase identities, safe attack telegraphs, boss defeat, 5 PM victory, replay, failure cleanup and a 900x600 compact layout. Its simulation bridge is available only in local development when the suite loads the game with `?e2e=1`; production and normal gameplay do not expose it.
 
 Milestone 3 balance evidence is in `docs/balance/`. The structured runner can accelerate only local development sessions and records resumable JSON/CSV evidence:
 

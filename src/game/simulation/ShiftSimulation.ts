@@ -1,4 +1,5 @@
 import { characterById, type CharacterId } from '../content/characters';
+import { bossPhaseDefinition } from '../content/boss';
 import { CORPORATE_EVENTS, type CorporateEventDefinition, type CorporateEventId } from '../content/corporateEvents';
 import { choosePerks } from '../content/perks';
 import type { HudSnapshot, RunResult } from '../events';
@@ -279,6 +280,7 @@ export class ShiftSimulation {
 
   toHud(walletCoins: number, dashReady: boolean): HudSnapshot {
     const character = characterById(this.character);
+    const bossPhase = bossPhaseDefinition(this.bossPhase || 1);
     return {
       character: this.character, perks: [...this.perks.keys()],
       clock: this.clockLabel(), elapsed: this.elapsed, duration: this.duration,
@@ -293,6 +295,9 @@ export class ShiftSimulation {
       bossHealth: this.bossHealth,
       bossMaxHealth: this.bossMaxHealth,
       bossPhase: this.bossPhase,
+      bossPhaseName: bossPhase.name,
+      bossDirective: bossPhase.directive,
+      bossAccent: bossPhase.accent,
       seed: this.seed,
     };
   }

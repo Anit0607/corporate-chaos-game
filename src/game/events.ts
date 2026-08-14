@@ -28,7 +28,20 @@ export interface HudSnapshot {
   bossHealth: number;
   bossMaxHealth: number;
   bossPhase: number;
+  bossPhaseName: string;
+  bossDirective: string;
+  bossAccent: string;
   seed: number;
+}
+
+export interface BossPresentation {
+  kind: 'entrance' | 'phase' | 'attack' | 'defeat';
+  phase: number;
+  kicker: string;
+  title: string;
+  detail: string;
+  accent: string;
+  duration: number;
 }
 
 export interface RunResult {
@@ -64,6 +77,7 @@ export type GameEventMap = {
   'game:hud': HudSnapshot;
   'game:perk-offer': string[];
   'game:corporate-event': CorporateEventDefinition;
+  'game:boss-presentation': BossPresentation;
   'game:profile': PlayerProfile;
   'game:pause': boolean;
   'game:result': RunResult;

@@ -12,6 +12,8 @@ declare global {
       damageBoss: (amount: number) => void;
       defeatPlayer: () => void;
       restorePlayer: () => void;
+      prepareBoss: (perks: string[]) => void;
+      primeBossAttack: () => void;
       clockOut: () => void;
     };
   }
@@ -58,6 +60,8 @@ if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('e2e'
     damageBoss: (amount: number) => shiftScene().integrationDamageBoss(amount),
     defeatPlayer: () => shiftScene().integrationDefeatPlayer(),
     restorePlayer: () => shiftScene().integrationRestorePlayer(),
+    prepareBoss: (perks: string[]) => shiftScene().integrationPrepareBoss(perks),
+    primeBossAttack: () => shiftScene().integrationPrimeBossAttack(),
     clockOut: () => shiftScene().integrationClockOut(),
   });
 }

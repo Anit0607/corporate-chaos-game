@@ -2,7 +2,7 @@ import { soundboard } from '../audio/Soundboard';
 import { CHARACTERS, type CharacterId } from '../game/content/characters';
 import type { CorporateEventDefinition } from '../game/content/corporateEvents';
 import { PERKS } from '../game/content/perks';
-import { gameBus, type HudSnapshot, type RunResult } from '../game/events';
+import { gameBus, type BossPresentation, type HudSnapshot, type RunResult } from '../game/events';
 import { ACHIEVEMENTS, profileStore, type PlayerProfile } from '../game/progression/ProfileStore';
 
 const formatScore = (value: number) => Math.round(value).toLocaleString('en-US');
@@ -11,6 +11,8 @@ export class GameUI {
   private readonly root: HTMLElement;
   private readonly screenIds = ['menu-screen', 'character-screen', 'briefing-screen', 'result-screen'];
   private toastTimer = 0;
+  private bossAnnouncementTimer = 0;
+  private bossWarningTimer = 0;
   private readonly touchDirections = new Set<string>();
 
   constructor(root: HTMLElement) {
@@ -112,8 +114,10 @@ export class GameUI {
           <div id="dash-chip" class="dash-chip is-ready">SPACE · DASH READY</div>
           <div id="ability-chip" class="ability-chip"><span>SIGNATURE</span><b>DEADLINE MOMENTUM</b></div>
           <div id="boss-hud" class="boss-hud" aria-label="Regional Director health">
-            <div><span>THE REGIONAL DIRECTOR</span><b id="boss-phase">PHASE 1</b></div>
+            <div class="boss-heading"><span>THE REGIONAL DIRECTOR</span><b id="boss-phase">PHASE 1</b></div>
+            <div class="boss-identity"><strong id="boss-phase-name">DELEGATION</strong><span id="boss-directive">ACTION ITEMS</span></div>
             <div class="boss-meter"><i id="boss-fill"></i></div>
+            <div id="boss-warning" class="boss-warning"><span>INCOMING DIRECTIVE</span><b>INBOX CASCADE</b></div>
           </div>
           <button id="pause-button" class="pause-button" type="button" aria-label="Pause game">II</button>
         </section>
@@ -122,6 +126,12 @@ export class GameUI {
           <span id="event-subtitle">CORPORATE EVENT</span>
           <strong id="event-title">REPLY-ALL STORM</strong>
           <p id="event-description"></p>
+        </aside>
+
+        <aside id="boss-announcement" class="boss-announcement" aria-live="assertive">
+          <span id="boss-announcement-kicker">FINAL ESCALATION</span>
+          <strong id="boss-announcement-title">THE REGIONAL DIRECTOR</strong>
+          <p id="boss-announcement-detail">Scope has entered the building.</p>
         </aside>
 
         <nav id="touch-controls" class="touch-controls" aria-label="Touch controls">
@@ -256,6 +266,7 @@ export class GameUI {
     gameBus.on('game:hud', (snapshot) => this.updateHud(snapshot));
     gameBus.on('game:perk-offer', (ids) => this.showPerks(ids));
     gameBus.on('game:corporate-event', (event) => this.showCorporateEvent(event));
+    gameBus.on('game:boss-presentation', (presentation) => this.showBossPresentation(presentation));
     gameBus.on('game:profile', (profile) => this.updateProfile(profile));
     gameBus.on('game:pause', (paused) => this.byId('pause-modal').classList.toggle('is-visible', paused));
     gameBus.on('game:result', (result) => this.showResult(result));
@@ -264,10 +275,14 @@ export class GameUI {
     gameBus.on('game:menu', () => this.showOnly('menu-screen'));
     gameBus.on('game:run-started', () => {
       window.clearTimeout(this.toastTimer);
+      window.clearTimeout(this.bossAnnouncementTimer);
+      window.clearTimeout(this.bossWarningTimer);
       this.hideScreens();
       this.byId('hud').classList.add('is-visible');
       this.byId('event-banner').classList.remove('is-visible');
       this.byId('boss-hud').classList.remove('is-visible');
+      this.byId('boss-announcement').classList.remove('is-visible');
+      this.byId('boss-warning').classList.remove('is-visible');
       this.byId('toast').classList.remove('is-visible');
     });
   }
@@ -296,8 +311,11 @@ export class GameUI {
     bossHud.dataset.health = String(snapshot.bossHealth);
     bossHud.dataset.maxHealth = String(snapshot.bossMaxHealth);
     bossHud.dataset.phase = String(snapshot.bossPhase);
+    bossHud.style.setProperty('--boss-accent', snapshot.bossAccent);
     this.byId('boss-fill').style.width = `${snapshot.bossMaxHealth > 0 ? (snapshot.bossHealth / snapshot.bossMaxHealth) * 100 : 0}%`;
     this.byId('boss-phase').textContent = `PHASE ${snapshot.bossPhase || 1}`;
+    this.byId('boss-phase-name').textContent = snapshot.bossPhaseName;
+    this.byId('boss-directive').textContent = snapshot.bossDirective;
     const eventBanner = this.byId('event-banner');
     eventBanner.classList.toggle('is-visible', snapshot.activeEvent !== null);
     eventBanner.dataset.active = String(snapshot.activeEvent !== null);
@@ -337,6 +355,28 @@ export class GameUI {
     banner.dataset.duration = String(event.duration);
   }
 
+  private showBossPresentation(presentation: BossPresentation): void {
+    if (presentation.kind === 'attack') {
+      window.clearTimeout(this.bossWarningTimer);
+      const warning = this.byId('boss-warning');
+      warning.style.setProperty('--boss-accent', presentation.accent);
+      warning.querySelector('b')!.textContent = presentation.title;
+      warning.classList.add('is-visible');
+      this.bossWarningTimer = window.setTimeout(() => warning.classList.remove('is-visible'), presentation.duration);
+      return;
+    }
+
+    window.clearTimeout(this.bossAnnouncementTimer);
+    const announcement = this.byId('boss-announcement');
+    announcement.style.setProperty('--boss-accent', presentation.accent);
+    announcement.dataset.kind = presentation.kind;
+    this.byId('boss-announcement-kicker').textContent = presentation.kicker;
+    this.byId('boss-announcement-title').textContent = presentation.title;
+    this.byId('boss-announcement-detail').textContent = presentation.detail;
+    announcement.classList.add('is-visible');
+    this.bossAnnouncementTimer = window.setTimeout(() => announcement.classList.remove('is-visible'), presentation.duration);
+  }
+
   private updateProfile(profile: PlayerProfile): void {
     this.byId('profile-runs').textContent = formatScore(profile.runs);
     this.byId('profile-wins').textContent = formatScore(profile.wins);
@@ -352,11 +392,15 @@ export class GameUI {
 
   private showResult(result: RunResult): void {
     window.clearTimeout(this.toastTimer);
+    window.clearTimeout(this.bossAnnouncementTimer);
+    window.clearTimeout(this.bossWarningTimer);
     this.byId('hud').classList.remove('is-visible');
     this.byId('pause-modal').classList.remove('is-visible');
     this.byId('perk-modal').classList.remove('is-visible');
     this.byId('event-banner').classList.remove('is-visible');
     this.byId('boss-hud').classList.remove('is-visible');
+    this.byId('boss-announcement').classList.remove('is-visible');
+    this.byId('boss-warning').classList.remove('is-visible');
     this.byId('toast').classList.remove('is-visible');
     this.byId('result-kicker').textContent = result.won ? 'SHIFT COMPLETE // 5:00 PM' : 'PERFORMANCE INTERRUPTED';
     this.byId('result-title').textContent = result.won ? 'You survived corporate culture.' : 'The inbox won this round.';
@@ -382,6 +426,8 @@ export class GameUI {
       this.byId('perk-modal').classList.remove('is-visible');
       this.byId('event-banner').classList.remove('is-visible');
       this.byId('boss-hud').classList.remove('is-visible');
+      this.byId('boss-announcement').classList.remove('is-visible');
+      this.byId('boss-warning').classList.remove('is-visible');
       this.touchDirections.clear();
       this.emitTouchVector();
     }

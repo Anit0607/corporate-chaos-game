@@ -5,7 +5,7 @@ import path from 'node:path';
 import { chromium } from 'playwright-core';
 
 const baseUrl = process.env.GAME_URL ?? 'http://127.0.0.1:4173';
-const outputDir = path.resolve('playwright-report', 'milestone-2-smoke');
+const outputDir = path.resolve('playwright-report', 'lifecycle-smoke');
 const executablePath = [
   process.env.CHROME_PATH,
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -51,8 +51,11 @@ const driveUntil = async (page, check, label, timeoutMs, maintainEnergy = false,
       if (await page.locator('#result-screen.is-visible').isVisible()) {
         throw new Error(`Run ended before ${label}.`);
       }
-      if (maintainEnergy && ((await snapshot(page))?.simulation?.energy ?? 100) < 45) {
-        await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
+      if (maintainEnergy) {
+        const state = await snapshot(page);
+        if ((state?.simulation?.energy ?? 100) < (state?.simulation?.maxEnergy ?? 100) * 0.9) {
+          await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
+        }
       }
       if (handleIncidentalPerks) {
         const followupPerk = page.locator('#perk-modal.is-visible [data-perk]').first();
@@ -224,32 +227,63 @@ try {
   await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
 
   await driveUntil(page, () => page.locator('#boss-hud.is-visible').isVisible(), 'boss encounter', 25_000, true);
+  const entrance = await snapshot(page);
+  assert(entrance?.bossPresentation.introActive, 'Boss HUD appeared after the entrance window had already ended.');
+  assert(entrance?.bossPresentation.auraActive, 'Regional Director entrance did not create its identity aura.');
+  assert.equal(await page.locator('#boss-hud').evaluate((element) => element.style.getPropertyValue('--boss-accent')), '#ff4d8d');
+  await page.locator('#boss-announcement.is-visible').waitFor();
+  assert.equal(await page.locator('#boss-announcement-title').innerText(), 'THE REGIONAL DIRECTOR');
+  await capture(page, '07-boss-entrance');
+  await waitUntil(page, async () => !(await snapshot(page))?.bossPresentation.introActive, 'boss entrance completion', 8_000);
   await page.locator('#pause-button').click();
   await page.locator('#pause-modal.is-visible').waitFor();
   let boss = await snapshot(page);
   assert(boss?.simulation?.bossStarted, 'Boss HUD appeared before the simulation boss started.');
 
-  for (const target of [{ ratio: 0.74, phase: 2 }, { ratio: 0.49, phase: 3 }, { ratio: 0.24, phase: 4 }]) {
+  for (const target of [
+    { ratio: 0.74, phase: 2, name: 'CALENDAR CONTROL', accent: '#b46cff' },
+    { ratio: 0.49, phase: 3, name: 'CLIENT ESCALATION', accent: '#ff9f43' },
+    { ratio: 0.24, phase: 4, name: 'PERFORMANCE PLAN', accent: '#5ce1e6' },
+  ]) {
     const simulation = boss.simulation;
     const damage = simulation.bossHealth - simulation.bossMaxHealth * target.ratio;
     await page.evaluate((amount) => window.__CORPORATE_CHAOS_E2E__?.damageBoss(amount), damage);
     boss = await snapshot(page);
     assert.equal(boss?.simulation?.bossPhase, target.phase);
+    assert.equal(boss?.bossPresentation.phaseName, target.name);
     assert.equal(await page.locator('#boss-phase').innerText(), `PHASE ${target.phase}`);
+    assert.equal(await page.locator('#boss-phase-name').innerText(), target.name);
+    assert.equal(await page.locator('#boss-hud').evaluate((element) => element.style.getPropertyValue('--boss-accent')), target.accent);
     assert.equal(Number(await page.locator('#boss-hud').getAttribute('data-phase')), target.phase);
     const fill = Number.parseFloat(await page.locator('#boss-fill').evaluate((element) => element.style.width));
     const authoritative = (boss.simulation.bossHealth / boss.simulation.bossMaxHealth) * 100;
     assert(Math.abs(fill - authoritative) < 0.2, `Boss fill ${fill} did not match simulation ${authoritative}.`);
   }
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.primeBossAttack());
   await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
   await page.locator('#pause-modal').waitFor({ state: 'hidden' });
-  await page.waitForTimeout(350);
-  await capture(page, '07-boss-phase-four');
+  await driveUntil(page, async () => Boolean((await snapshot(page))?.bossPresentation.attackPending), 'phase-four attack telegraph', 12_000, true);
+  const warning = await snapshot(page);
+  assert.equal(warning?.bossPresentation.attackTargets.length, 2);
+  const safeTargetDistances = warning.bossPresentation.attackTargets.map((target) => Math.hypot(target.x - warning.player.x, target.y - warning.player.y));
+  safeTargetDistances.forEach((distance) => {
+    assert(distance >= 224, `Boss attack target spawned unfairly close to the player: ${distance.toFixed(1)}px.`);
+  });
+  await page.locator('#boss-warning.is-visible').waitFor();
+  assert.equal(await page.locator('#boss-warning b').innerText(), 'PIP DROP ZONE');
+  await capture(page, '08-boss-phase-four-telegraph');
+  await driveUntil(page, async () => !(await snapshot(page))?.bossPresentation.attackPending, 'phase-four attack execution', 5_000, true);
   await page.locator('#pause-button').click();
   await page.locator('#pause-modal.is-visible').waitFor();
   await page.evaluate((amount) => window.__CORPORATE_CHAOS_E2E__?.damageBoss(amount), boss.simulation.bossHealth);
-  assert((await snapshot(page))?.simulation?.bossDefeated, 'Boss defeat did not reach authoritative state.');
+  const defeatedBoss = await snapshot(page);
+  assert(defeatedBoss?.simulation?.bossDefeated, 'Boss defeat did not reach authoritative state.');
+  assert(defeatedBoss?.bossPresentation.defeatPlaying, 'Boss defeat sequence did not enter its presentation state.');
+  await page.locator('#boss-announcement.is-visible').waitFor();
+  assert.equal(await page.locator('#boss-announcement-title').innerText(), 'DIRECTOR OFFLINE');
   await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
+  await page.locator('#pause-modal').waitFor({ state: 'hidden' });
+  await capture(page, '09-boss-defeat');
   await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.clockOut());
   await page.locator('#result-screen.is-visible').waitFor({ timeout: 5_000 });
   await page.waitForTimeout(350);
@@ -258,7 +292,7 @@ try {
   const victoryCleanup = await snapshot(page);
   assert.equal(victoryCleanup?.running, false);
   assert.deepEqual(victoryCleanup?.activeEntities, { hazards: 0, projectiles: 0, coins: 0, effects: 0, timers: 0 });
-  await capture(page, '08-victory-result');
+  await capture(page, '10-victory-result');
 
   await page.getByRole('button', { name: 'WORK ANOTHER SHIFT' }).click();
   await page.locator('#hud.is-visible').waitFor();
@@ -268,7 +302,7 @@ try {
   assert.deepEqual(replay.simulation?.perks, {});
   assert.equal(replay.sceneSubscriptions, stableSubscriptions);
   assert.equal(replay.busListeners, stableBusListeners);
-  await capture(page, '09-replay');
+  await capture(page, '11-replay');
 
   await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.defeatPlayer());
   await page.locator('#result-screen.is-visible').waitFor({ timeout: 3_000 });
@@ -276,7 +310,7 @@ try {
   assert.equal(await page.locator('#result-kicker').innerText(), 'PERFORMANCE INTERRUPTED');
   const defeatCleanup = await snapshot(page);
   assert.deepEqual(defeatCleanup?.activeEntities, { hazards: 0, projectiles: 0, coins: 0, effects: 0, timers: 0 });
-  await capture(page, '10-defeat-result');
+  await capture(page, '12-defeat-result');
 
   await page.getByRole('button', { name: 'MAIN MENU' }).click();
   await enterShift(page, 'red-recruit');
@@ -285,8 +319,23 @@ try {
   assert.equal(firestarter?.simulation?.maxEnergy, 92);
   assert.equal(firestarter?.player.texture, 'player-red');
   assert.equal(await page.locator('#hud').getAttribute('data-character'), 'red-recruit');
-  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.defeatPlayer());
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.prepareBoss(['reply', 'printer']));
+  await driveUntil(page, () => page.locator('#boss-hud.is-visible').isVisible(), 'Firestarter boss encounter', 8_000, true);
+  const firestarterBoss = await snapshot(page);
+  assert.equal(firestarterBoss?.simulation?.perks.reply, 1);
+  assert.equal(firestarterBoss?.simulation?.perks.printer, 1);
+  assert(firestarterBoss?.bossPresentation.introActive, 'Firestarter build did not receive the boss entrance sequence.');
+  await page.locator('#pause-button').click();
+  await page.locator('#pause-modal.is-visible').waitFor();
+  const bossHealth = firestarterBoss.simulation.bossHealth;
+  await page.evaluate((amount) => window.__CORPORATE_CHAOS_E2E__?.damageBoss(amount), bossHealth * 0.78);
+  assert.equal((await snapshot(page))?.simulation?.bossPhase, 4);
+  await page.evaluate((amount) => window.__CORPORATE_CHAOS_E2E__?.damageBoss(amount), bossHealth);
+  assert((await snapshot(page))?.simulation?.bossDefeated, 'Firestarter Reply/Printer build did not complete the boss lifecycle.');
+  await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.clockOut());
   await page.locator('#result-screen.is-visible').waitFor({ timeout: 3_000 });
+  assert.equal(await page.locator('#result-boss').innerText(), 'DIRECTOR DEFEATED');
 
   await page.setViewportSize({ width: 900, height: 600 });
   await page.goto(`${baseUrl}/?duration=30&seed=20260812&e2e=1`, { waitUntil: 'domcontentloaded' });
@@ -298,7 +347,7 @@ try {
   await page.getByRole('button', { name: 'ENTER THE OFFICE' }).click();
   await page.locator('#touch-controls').waitFor({ state: 'visible' });
   await page.waitForTimeout(350);
-  await capture(page, '11-compact-gameplay');
+  await capture(page, '13-compact-gameplay');
 
   if (browserErrors.length) throw new Error(browserErrors.join('\n'));
   summary = JSON.stringify({
@@ -308,6 +357,12 @@ try {
     selectedPerk,
     eventId,
     bossPhasesVerified: [1, 2, 3, 4],
+    bossPolishVerified: ['entrance', 'unique phase identity', 'attack warning', 'safe spawn distance', 'defeat sequence', '5 PM hold'],
+    bossBuildsVerified: [
+      { character: 'blue-recruit', perks: [selectedPerk] },
+      { character: 'red-recruit', perks: ['reply', 'printer'] },
+    ],
+    minimumBossSpawnDistance: Math.min(...safeTargetDistances),
     cleanupVerified: true,
     characterIntegrationVerified: ['blue-recruit', 'red-recruit'],
     compactLayoutVerified: true,

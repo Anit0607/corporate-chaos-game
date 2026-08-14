@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { soundboard } from '../../audio/Soundboard';
 import { analytics } from '../../game/analytics/analytics';
+import { bossPhaseDefinition, type BossPhase } from '../../game/content/boss';
 import { CHARACTERS } from '../../game/content/characters';
 import { availableHazards, HAZARDS, type HazardId } from '../../game/content/hazards';
 import { PERKS } from '../../game/content/perks';
@@ -12,6 +13,13 @@ import { createOfficeArena } from '../systems/OfficeArena';
 import { PlayerController } from '../systems/PlayerController';
 
 type SceneHazardKind = HazardId | 'boss';
+
+interface PendingBossAttack {
+  phase: BossPhase;
+  executeAt: number;
+  toast: string;
+  spawns: Array<{ kind: HazardId; x: number; y: number }>;
+}
 
 interface RunTelemetry {
   damageReceived: number;
@@ -70,6 +78,14 @@ export interface ShiftSceneIntegrationSnapshot {
   };
   activeEntities: { hazards: number; projectiles: number; coins: number; effects: number; timers: number };
   hazardActors: Array<{ kind: string; x: number; y: number }>;
+  bossPresentation: {
+    introActive: boolean;
+    attackPending: boolean;
+    attackTargets: Array<{ x: number; y: number }>;
+    defeatPlaying: boolean;
+    auraActive: boolean;
+    phaseName: string;
+  };
   telemetry: RunTelemetry;
   sceneSubscriptions: number;
   busListeners: number;
@@ -96,6 +112,10 @@ export class ShiftScene extends Phaser.Scene {
   private lastShotAt = 0;
   private lastHudAt = 0;
   private lastBossPatternAt = 0;
+  private bossIntroUntil = 0;
+  private pendingBossAttack: PendingBossAttack | null = null;
+  private bossDefeatPlaying = false;
+  private bossAura: Phaser.GameObjects.Arc | null = null;
   private gameplayTime = 0;
   private balanceRate = 1;
   private runTelemetry = createRunTelemetry();
@@ -226,6 +246,7 @@ export class ShiftScene extends Phaser.Scene {
     this.clearRunTimers();
     this.tweens.killAll();
     this.effects.clear();
+    this.clearBossPresentation();
     this.unsubscribe.splice(0).forEach((off) => off());
     this.input.keyboard?.removeKey(this.pauseKey, true);
   }
@@ -294,6 +315,14 @@ export class ShiftScene extends Phaser.Scene {
         .map((child) => child as Phaser.Physics.Arcade.Sprite)
         .filter((hazard) => hazard.active)
         .map((hazard) => ({ kind: String(hazard.getData('kind')), x: hazard.x, y: hazard.y })),
+      bossPresentation: {
+        introActive: this.bossIntroUntil > this.gameplayTime,
+        attackPending: this.pendingBossAttack !== null,
+        attackTargets: this.pendingBossAttack?.spawns.map(({ x, y }) => ({ x, y })) ?? [],
+        defeatPlaying: this.bossDefeatPlaying,
+        auraActive: this.bossAura?.active ?? false,
+        phaseName: bossPhaseDefinition(simulation?.bossPhase || 1).name,
+      },
       telemetry: {
         ...this.runTelemetry,
         spawnedByHazard: { ...this.runTelemetry.spawnedByHazard },
@@ -309,15 +338,7 @@ export class ShiftScene extends Phaser.Scene {
 
   integrationDamageBoss(amount: number): void {
     if (!this.simulation?.bossStarted || this.simulation.bossDefeated) return;
-    const result = this.simulation.damageBoss(Math.max(0, amount));
-    this.runTelemetry.bossPhaseReached = Math.max(this.runTelemetry.bossPhaseReached, result.phase);
-    if (result.defeated) {
-      const boss = this.hazards.getChildren().find((child) => (
-        (child as Phaser.Physics.Arcade.Sprite).active && (child as Phaser.Physics.Arcade.Sprite).getData('kind') === 'boss'
-      )) as Phaser.Physics.Arcade.Sprite | undefined;
-      if (boss) this.clearHazard(boss);
-    }
-    this.emitHud();
+    this.damageBoss(Math.max(0, amount), this.findBoss(), true);
   }
 
   integrationDefeatPlayer(): void {
@@ -328,6 +349,24 @@ export class ShiftScene extends Phaser.Scene {
     if (!this.simulation) return;
     this.simulation.energy = this.simulation.maxEnergy;
     this.emitHud();
+  }
+
+  integrationPrepareBoss(perks: string[]): void {
+    if (!this.simulation || this.simulation.bossStarted) return;
+    perks.filter((id) => PERKS[id]).forEach((id) => {
+      this.simulation!.applyPerk(id);
+      this.runTelemetry.perkChoices.push(id);
+    });
+    this.simulation.energy = this.simulation.maxEnergy;
+    this.simulation.elapsed = this.simulation.bossStartAt;
+    this.emitHud();
+  }
+
+  integrationPrimeBossAttack(): void {
+    if (!this.simulation?.bossStarted || this.simulation.bossDefeated) return;
+    this.projectiles.clear(true, true);
+    this.pendingBossAttack = null;
+    this.lastBossPatternAt = this.gameplayTime - 10_000;
   }
 
   integrationClockOut(): void {
@@ -360,6 +399,7 @@ export class ShiftScene extends Phaser.Scene {
     this.clearRunTimers();
     this.tweens.killAll();
     this.effects.clear();
+    this.clearBossPresentation();
     this.hazards.clear(true, true);
     this.projectiles.clear(true, true);
     this.coins.clear(true, true);
@@ -373,6 +413,9 @@ export class ShiftScene extends Phaser.Scene {
     this.lastShotAt = this.gameplayTime - 1000;
     this.lastHudAt = 0;
     this.lastBossPatternAt = 0;
+    this.bossIntroUntil = 0;
+    this.pendingBossAttack = null;
+    this.bossDefeatPlaying = false;
     this.playerController.reset(this.gameplayTime);
     this.time.timeScale = this.balanceRate;
     this.tweens.timeScale = this.balanceRate;
@@ -407,6 +450,7 @@ export class ShiftScene extends Phaser.Scene {
     this.clearRunTimers();
     this.tweens.killAll();
     this.effects.clear();
+    this.clearBossPresentation();
     this.physics.pause();
     this.hazards.clear(true, true);
     this.projectiles.clear(true, true);
@@ -466,9 +510,30 @@ export class ShiftScene extends Phaser.Scene {
       const phase = hazard.getData('phase') as number;
       const speed = hazard.getData('speed') as number;
       if (kind === 'boss') {
+        const phase = Math.max(1, this.simulation!.bossPhase) as BossPhase;
+        const presentation = bossPhaseDefinition(phase);
+        if (hazard.getData('intro')) {
+          const startAt = this.bossIntroUntil - 1400;
+          const progress = Phaser.Math.Clamp((time - startAt) / 1400, 0, 1);
+          const eased = Phaser.Math.Easing.Cubic.Out(progress);
+          hazard.setPosition(640, Phaser.Math.Linear(-90, 150, eased));
+          hazard.setAlpha(0.18 + progress * 0.82).setScale(0.72 + progress * 0.22);
+          if (progress >= 1) {
+            hazard.setData('intro', false);
+            hazard.body!.enable = true;
+            this.lastBossPatternAt = time;
+            this.applyBossPhasePresentation(phase, hazard, false);
+          }
+          this.updateBossAura(hazard, presentation, time);
+          return;
+        }
         const bossSpeed = [0, 52, 68, 88, 112][this.simulation!.bossPhase];
         this.physics.velocityFromRotation(angle + Math.sin(time * 0.0018) * 0.12, bossSpeed, hazard.body!.velocity);
         hazard.setRotation(Math.sin(time * 0.002) * 0.03);
+        const changedAt = (hazard.getData('phaseChangedAt') as number) || 0;
+        const transition = Phaser.Math.Clamp(1 - (time - changedAt) / 620, 0, 1);
+        hazard.setScale(presentation.scale + Math.sin(time * 0.028) * transition * 0.1);
+        this.updateBossAura(hazard, presentation, time);
         this.updateBossPattern(time, hazard);
         return;
       }
@@ -561,21 +626,19 @@ export class ShiftScene extends Phaser.Scene {
     const damage = projectile.getData('damage') as number;
     const kind = hazard.getData('kind') as SceneHazardKind;
     hazard.setTint(0xffffff);
-    this.scheduleRunTimer(45, () => hazard.active && hazard.clearTint());
+    this.scheduleRunTimer(45, () => {
+      if (!hazard.active) return;
+      if (kind === 'boss') hazard.setTint(bossPhaseDefinition(this.simulation?.bossPhase || 1).color);
+      else hazard.clearTint();
+    });
 
     const pierce = (projectile.getData('pierce') as number) - 1;
     projectile.setData('pierce', pierce);
     if (pierce < 0) projectile.disableBody(true, true);
 
     if (kind === 'boss') {
-      const result = this.simulation!.damageBoss(damage);
-      this.runTelemetry.bossPhaseReached = Math.max(this.runTelemetry.bossPhaseReached, result.phase);
       this.effects.floatingText(hazard.x, hazard.y - 48, `-${damage}`, '#ff9bbf');
-      if (result.phaseChanged && !result.defeated) {
-        gameBus.emit('game:toast', `REGIONAL DIRECTOR · PHASE ${result.phase} · SCOPE EXPANDED`);
-        this.effects.shake(280, 0.007);
-      }
-      if (result.defeated) this.clearHazard(hazard);
+      this.damageBoss(damage, hazard, false);
       return;
     }
 
@@ -590,16 +653,13 @@ export class ShiftScene extends Phaser.Scene {
     const coinValue = hazard.getData('coins') as number;
     const x = hazard.x;
     const y = hazard.y;
-    hazard.disableBody(true, true);
     this.runTelemetry.clearedByHazard[kind] += 1;
     if (kind === 'boss') {
-      this.effects.burst(x, y, 0xff4d8d, 42);
-      this.effects.shake(520, 0.014);
-      soundboard.play('boss');
-      gameBus.emit('game:toast', 'REGIONAL DIRECTOR OFFLINE · HOLD UNTIL CLOCK-OUT');
-      analytics.capture('boss_defeated', { shift_second: Math.round(this.simulation!.elapsed), seed: this.simulation!.seed });
+      this.playBossDefeatSequence(hazard, x, y);
       return;
     }
+
+    hazard.disableBody(true, true);
 
     this.effects.burst(x, y, HAZARDS[kind].color, kind === 'manager' ? 16 : 8);
     this.spawnCoin(x, y, coinValue);
@@ -652,10 +712,8 @@ export class ShiftScene extends Phaser.Scene {
     if (!hazard.active) return;
     const kind = hazard.getData('kind') as SceneHazardKind;
     if (this.playerController.isDashing && kind === 'boss') {
-      const result = this.simulation!.damageBoss(3);
-      this.runTelemetry.bossPhaseReached = Math.max(this.runTelemetry.bossPhaseReached, result.phase);
+      this.damageBoss(3, hazard, false);
       this.effects.burst(this.player.x, this.player.y, 0x27d9ff, 7);
-      if (result.defeated) this.clearHazard(hazard);
       return;
     }
     if (this.playerController.isDashing) {
@@ -743,47 +801,203 @@ export class ShiftScene extends Phaser.Scene {
     simulation.startBoss();
     this.hazards.getChildren().forEach((child) => {
       const hazard = child as Phaser.Physics.Arcade.Sprite;
-      if (hazard.active && hazard.getData('kind') !== 'boss' && simulation.random.next() < 0.6) hazard.disableBody(true, true);
+      if (hazard.active && hazard.getData('kind') !== 'boss') hazard.disableBody(true, true);
     });
-    const boss = this.hazards.get(640, 150, 'hazard-director') as Phaser.Physics.Arcade.Sprite | null;
+    const boss = this.hazards.get(640, -90, 'hazard-director') as Phaser.Physics.Arcade.Sprite | null;
     if (!boss) return;
-    boss.enableBody(true, 640, 150, true, true);
-    boss.setDepth(18).setScale(0.92).setAlpha(1).clearTint();
-    boss.setData({ kind: 'boss', damage: 28, score: 0, coins: 0, speed: 60, phase: 0, nextPulseAt: this.gameplayTime + 2600 });
+    boss.enableBody(true, 640, -90, true, true);
+    boss.setDepth(18).setScale(0.72).setAlpha(0.18).setTint(bossPhaseDefinition(1).color);
+    boss.setData({ kind: 'boss', damage: 28, score: 0, coins: 0, speed: 60, phase: 1, intro: true, phaseChangedAt: this.gameplayTime, nextPulseAt: this.gameplayTime + 2600 });
     this.runTelemetry.spawnedByHazard.boss += 1;
     this.runTelemetry.bossPhaseReached = 1;
     (boss.body as Phaser.Physics.Arcade.Body).setCircle(45, 11, 10);
-    this.lastBossPatternAt = this.gameplayTime;
+    boss.body!.enable = false;
+    this.bossIntroUntil = this.gameplayTime + 1400;
+    this.pendingBossAttack = null;
+    this.bossDefeatPlaying = false;
+    this.bossAura?.destroy();
+    this.bossAura = this.add.circle(640, -90, 66, bossPhaseDefinition(1).color, 0.08)
+      .setStrokeStyle(4, bossPhaseDefinition(1).color, 0.7)
+      .setDepth(17);
+    this.lastBossPatternAt = this.bossIntroUntil;
     soundboard.play('boss');
     this.effects.telegraph(640, 150, 0xff4d8d, 122, 1100);
     this.effects.shake(420, 0.012);
-    gameBus.emit('game:toast', 'FINAL ESCALATION · THE REGIONAL DIRECTOR HAS JOINED');
+    gameBus.emit('game:boss-presentation', {
+      kind: 'entrance', phase: 1, kicker: '4:12 PM // FINAL ESCALATION', title: 'THE REGIONAL DIRECTOR',
+      detail: 'Scope has entered the building. Survive the review and hold until 5:00 PM.', accent: bossPhaseDefinition(1).accent, duration: 1500,
+    });
+    this.emitHud();
     analytics.capture('boss_started', { seed: simulation.seed, shift_second: Math.round(simulation.elapsed) });
   }
 
   private updateBossPattern(time: number, boss: Phaser.Physics.Arcade.Sprite): void {
-    const phase = this.simulation!.bossPhase;
+    if (boss.getData('intro') || this.bossDefeatPlaying) return;
+    const phase = this.simulation!.bossPhase as BossPhase;
+    if (this.pendingBossAttack) {
+      if (this.pendingBossAttack.phase !== phase) {
+        this.pendingBossAttack = null;
+        return;
+      }
+      if (time < this.pendingBossAttack.executeAt) return;
+      const attack = this.pendingBossAttack;
+      this.pendingBossAttack = null;
+      attack.spawns.forEach(({ kind, x, y }) => this.spawnHazard(kind, { x, y }));
+      gameBus.emit('game:toast', attack.toast);
+      return;
+    }
+
     const interval = [0, 4400, 3900, 3200, 2500][phase];
     if (time - this.lastBossPatternAt < interval) return;
     this.lastBossPatternAt = time;
-    this.effects.telegraph(this.player.x, this.player.y, 0xff4d8d, 92, 820);
+    const presentation = bossPhaseDefinition(phase);
     const offset = this.simulation!.random.integer(-70, 70);
+    let toast = '';
+    let spawns: PendingBossAttack['spawns'] = [];
     if (phase === 1) {
-      this.spawnHazard('email', { x: boss.x - 48, y: boss.y + 42 });
-      this.spawnHazard('email', { x: boss.x + 48, y: boss.y + 42 });
-      gameBus.emit('game:toast', 'QUICK SYNC · ACTION ITEMS SUMMONED');
+      spawns = [
+        { kind: 'email', ...this.safeBossSpawn(boss.x - 64, boss.y + 58, 210) },
+        { kind: 'email', ...this.safeBossSpawn(boss.x + 64, boss.y + 58, 210) },
+      ];
+      toast = 'QUICK SYNC · ACTION ITEMS SUMMONED';
     } else if (phase === 2) {
-      this.spawnHazard('meeting', { x: Phaser.Math.Clamp(this.player.x + offset, 110, 1170), y: Phaser.Math.Clamp(this.player.y + offset, 215, 610) });
-      gameBus.emit('game:toast', 'URGENT MEETING · ESCAPE ROUTE BLOCKED');
+      spawns = [{ kind: 'meeting', ...this.safeBossSpawn(this.player.x + offset, this.player.y - offset, 240) }];
+      toast = 'URGENT MEETING · ESCAPE ROUTE BLOCKED';
     } else if (phase === 3) {
-      this.spawnHazard('client', { x: boss.x - 70, y: boss.y + 55 });
-      this.spawnHazard('client', { x: boss.x + 70, y: boss.y + 55 });
-      gameBus.emit('game:toast', 'CAN WE HAVE A QUICK CALL? · APPARENTLY TWO');
+      spawns = [
+        { kind: 'client', ...this.safeBossSpawn(boss.x - 84, boss.y + 70, 220) },
+        { kind: 'client', ...this.safeBossSpawn(boss.x + 84, boss.y + 70, 220) },
+      ];
+      toast = 'CAN WE HAVE A QUICK CALL? · APPARENTLY TWO';
     } else {
-      this.spawnHazard('deadline', { x: Phaser.Math.Clamp(this.player.x + offset, 110, 1170), y: Phaser.Math.Clamp(this.player.y - offset, 215, 610) });
-      this.spawnHazard('review', { x: boss.x, y: boss.y + 70 });
-      gameBus.emit('game:toast', 'PERFORMANCE IMPROVEMENT PLAN · FINAL BURST');
+      spawns = [
+        { kind: 'deadline', ...this.safeBossSpawn(this.player.x + offset, this.player.y - offset, 250) },
+        { kind: 'review', ...this.safeBossSpawn(boss.x, boss.y + 82, 225) },
+      ];
+      toast = 'PERFORMANCE IMPROVEMENT PLAN · FINAL BURST';
     }
+
+    spawns.forEach(({ x, y }) => this.effects.telegraph(x, y, presentation.color, phase === 4 ? 82 : 64, 720));
+    this.pendingBossAttack = { phase, executeAt: time + 720, toast, spawns };
+    soundboard.play('bossAttack');
+    gameBus.emit('game:boss-presentation', {
+      kind: 'attack', phase, kicker: `PHASE ${phase}`, title: presentation.warning,
+      detail: presentation.directive, accent: presentation.accent, duration: 720,
+    });
+  }
+
+  private safeBossSpawn(preferredX: number, preferredY: number, minimumDistance: number): { x: number; y: number } {
+    let x = Phaser.Math.Clamp(preferredX, 105, 1175);
+    let y = Phaser.Math.Clamp(preferredY, 205, 615);
+    let dx = x - this.player.x;
+    let dy = y - this.player.y;
+    let distance = Math.hypot(dx, dy);
+    if (distance >= minimumDistance) return { x, y };
+
+    if (distance < 1) {
+      const angle = this.simulation!.random.next() * Math.PI * 2;
+      dx = Math.cos(angle);
+      dy = Math.sin(angle);
+      distance = 1;
+    }
+    x = Phaser.Math.Clamp(this.player.x + (dx / distance) * minimumDistance, 105, 1175);
+    y = Phaser.Math.Clamp(this.player.y + (dy / distance) * minimumDistance, 205, 615);
+    if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) >= minimumDistance - 1) return { x, y };
+
+    return [
+      { x: 105, y: 205 }, { x: 1175, y: 205 }, { x: 105, y: 615 }, { x: 1175, y: 615 },
+      { x: 640, y: 205 }, { x: 640, y: 615 },
+    ].sort((a, b) => Phaser.Math.Distance.Squared(this.player.x, this.player.y, b.x, b.y) - Phaser.Math.Distance.Squared(this.player.x, this.player.y, a.x, a.y))[0];
+  }
+
+  private findBoss(): Phaser.Physics.Arcade.Sprite | undefined {
+    return this.hazards.getChildren().find((child) => {
+      const hazard = child as Phaser.Physics.Arcade.Sprite;
+      return hazard.visible && hazard.getData('kind') === 'boss';
+    }) as Phaser.Physics.Arcade.Sprite | undefined;
+  }
+
+  private damageBoss(amount: number, boss: Phaser.Physics.Arcade.Sprite | undefined, emitImmediately: boolean): void {
+    if (!this.simulation?.bossStarted || this.simulation.bossDefeated) return;
+    const result = this.simulation.damageBoss(Math.max(0, amount));
+    this.runTelemetry.bossPhaseReached = Math.max(this.runTelemetry.bossPhaseReached, result.phase);
+    if (result.phaseChanged && !result.defeated) this.applyBossPhasePresentation(result.phase as BossPhase, boss, true);
+    if (result.defeated && boss) this.clearHazard(boss);
+    if (emitImmediately) this.emitHud();
+  }
+
+  private applyBossPhasePresentation(phase: BossPhase, boss: Phaser.Physics.Arcade.Sprite | undefined, announce: boolean): void {
+    const presentation = bossPhaseDefinition(phase);
+    this.pendingBossAttack = null;
+    this.lastBossPatternAt = this.gameplayTime;
+    if (boss) {
+      boss.setData('phase', phase).setData('phaseChangedAt', this.gameplayTime).setTint(presentation.color);
+      boss.setScale(presentation.scale);
+    }
+    if (this.bossAura) {
+      this.bossAura.setFillStyle(presentation.color, 0.08).setStrokeStyle(4, presentation.color, 0.72);
+    }
+    if (!announce) return;
+    soundboard.play('bossPhase');
+    this.effects.burst(boss?.x ?? 640, boss?.y ?? 150, presentation.color, 24);
+    this.effects.telegraph(boss?.x ?? 640, boss?.y ?? 150, presentation.color, 104, 760);
+    this.effects.shake(300, 0.009);
+    gameBus.emit('game:boss-presentation', {
+      kind: 'phase', phase, kicker: `PHASE ${phase} // SCOPE CHANGE`, title: presentation.name,
+      detail: `Incoming directive: ${presentation.directive}.`, accent: presentation.accent, duration: 1250,
+    });
+    analytics.capture('boss_phase_changed', { phase, seed: this.simulation?.seed ?? 0 });
+    this.emitHud();
+  }
+
+  private updateBossAura(boss: Phaser.Physics.Arcade.Sprite, presentation: ReturnType<typeof bossPhaseDefinition>, time: number): void {
+    if (!this.bossAura?.active) return;
+    const pulse = 1 + Math.sin(time * 0.006 + presentation.phase) * 0.08;
+    this.bossAura.setPosition(boss.x, boss.y + 4).setScale(pulse).setAlpha(0.62 + Math.sin(time * 0.004) * 0.16);
+  }
+
+  private playBossDefeatSequence(boss: Phaser.Physics.Arcade.Sprite, x: number, y: number): void {
+    this.pendingBossAttack = null;
+    this.bossIntroUntil = 0;
+    this.bossDefeatPlaying = true;
+    boss.body!.enable = false;
+    boss.setVelocity(0).setActive(false).setVisible(true).setTint(0xffffff);
+    this.effects.burst(x, y, 0x5ce1e6, 56);
+    this.effects.telegraph(x, y, 0x9ce65c, 150, 920);
+    this.effects.shake(650, 0.016);
+    soundboard.play('bossDefeat');
+    gameBus.emit('game:boss-presentation', {
+      kind: 'defeat', phase: 4, kicker: 'FINAL REVIEW COMPLETE', title: 'DIRECTOR OFFLINE',
+      detail: 'Hold the floor until 5:00 PM. Do not answer follow-up emails.', accent: '#9ce65c', duration: 1600,
+    });
+    this.tweens.add({
+      targets: boss,
+      y: y - 55,
+      rotation: boss.rotation + 0.16,
+      scale: 1.42,
+      alpha: 0,
+      duration: 900,
+      ease: 'Cubic.In',
+      onComplete: () => boss.setVisible(false),
+    });
+    if (this.bossAura) {
+      this.tweens.add({ targets: this.bossAura, scale: 2.2, alpha: 0, duration: 850, ease: 'Quad.Out' });
+    }
+    this.scheduleRunTimer(950, () => {
+      this.bossDefeatPlaying = false;
+      this.bossAura?.destroy();
+      this.bossAura = null;
+    });
+    analytics.capture('boss_defeated', { shift_second: Math.round(this.simulation!.elapsed), seed: this.simulation!.seed });
+    this.emitHud();
+  }
+
+  private clearBossPresentation(): void {
+    this.pendingBossAttack = null;
+    this.bossIntroUntil = 0;
+    this.bossDefeatPlaying = false;
+    this.bossAura?.destroy();
+    this.bossAura = null;
   }
 
   private explodeDeadline(hazard: Phaser.Physics.Arcade.Sprite): void {
@@ -840,6 +1054,7 @@ export class ShiftScene extends Phaser.Scene {
     result.newAchievements = progression.unlocked;
     this.tweens.killAll();
     this.effects.clear();
+    this.clearBossPresentation();
     this.hazards.clear(true, true);
     this.projectiles.clear(true, true);
     this.coins.clear(true, true);

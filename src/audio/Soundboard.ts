@@ -16,7 +16,7 @@ class Soundboard {
     void this.context.resume();
   }
 
-  play(kind: 'coin' | 'hit' | 'fire' | 'upgrade' | 'chaos' | 'shield' | 'event' | 'boss' | 'win' | 'lose'): void {
+  play(kind: 'coin' | 'hit' | 'fire' | 'upgrade' | 'chaos' | 'shield' | 'event' | 'boss' | 'bossPhase' | 'bossAttack' | 'bossDefeat' | 'win' | 'lose'): void {
     if (this.muted) return;
     this.unlock();
     const context = this.context;
@@ -31,6 +31,9 @@ class Soundboard {
       shield: [880, 0.24, 'sine'],
       event: [410, 0.3, 'triangle'],
       boss: [72, 0.6, 'sawtooth'],
+      bossPhase: [130, 0.34, 'square'],
+      bossAttack: [210, 0.16, 'sawtooth'],
+      bossDefeat: [96, 0.85, 'sawtooth'],
       win: [740, 0.5, 'triangle'],
       lose: [120, 0.45, 'sine'],
     } as const;

@@ -1,0 +1,20 @@
+{
+  "validatedAt": "2026-08-14",
+  "ok": true,
+  "bossPhasesVerified": [1, 2, 3, 4],
+  "bossPolishVerified": [
+    "entrance",
+    "unique phase identity",
+    "attack warning",
+    "safe spawn distance",
+    "defeat sequence",
+    "5 PM hold"
+  ],
+  "bossBuildsVerified": [
+    { "character": "blue-recruit", "perks": ["snack"] },
+    { "character": "red-recruit", "perks": ["reply", "printer"] }
+  ],
+  "minimumMeasuredBossSpawnDistance": 225.18826254279972,
+  "cleanupVerified": true,
+  "compactLayoutVerified": true
+}

@@ -1,0 +1,316 @@
+[
+  {
+    "index": 0,
+    "id": "m4-boss-polish-01",
+    "seed": 310001,
+    "character": "red-recruit",
+    "strategy": "aggressive",
+    "cohort": "m4-boss-polish",
+    "acceleratedRate": 8,
+    "realSeconds": 42.5,
+    "timedOut": false,
+    "outcome": "defeat",
+    "survivedSeconds": 196.9,
+    "damageReceived": 125,
+    "blockedHits": 0,
+    "deadlineDetonations": 0,
+    "deadlineDodges": 0,
+    "coins": 137,
+    "score": 124162,
+    "hazardsCleared": 379,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "reply",
+      "reply",
+      "reply",
+      "coffee"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "coffee",
+          "reply"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "shield",
+          "snack",
+          "reply"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "coffee",
+          "shield",
+          "reply"
+        ],
+        "selected": "reply"
+      },
+      {
+        "offered": [
+          "snack",
+          "escape",
+          "coffee"
+        ],
+        "selected": "coffee"
+      }
+    ],
+    "events": [
+      "wellness-hour",
+      "printer-rebellion"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 238,
+      "meeting": 60,
+      "kpi": 66,
+      "manager": 5,
+      "hr": 12,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 237,
+      "meeting": 59,
+      "kpi": 65,
+      "manager": 4,
+      "hr": 10,
+      "client": 4,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 48,
+      "meeting": 16,
+      "kpi": 0,
+      "manager": 46,
+      "hr": 15,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 1,
+    "id": "m4-boss-polish-02",
+    "seed": 317920,
+    "character": "blue-recruit",
+    "strategy": "aggressive",
+    "cohort": "m4-boss-polish",
+    "acceleratedRate": 8,
+    "realSeconds": 12.92,
+    "timedOut": false,
+    "outcome": "defeat",
+    "survivedSeconds": 44.6,
+    "damageReceived": 124,
+    "blockedHits": 1,
+    "deadlineDetonations": 0,
+    "deadlineDodges": 0,
+    "coins": 24,
+    "score": 13637,
+    "hazardsCleared": 73,
+    "finalEnergy": 0,
+    "perkChoices": [],
+    "perkOffers": [],
+    "events": [],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 77,
+      "meeting": 3,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 72,
+      "meeting": 1,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 98,
+      "meeting": 26,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 2,
+    "id": "m4-boss-polish-03",
+    "seed": 325839,
+    "character": "red-recruit",
+    "strategy": "balanced",
+    "cohort": "m4-boss-polish",
+    "acceleratedRate": 8,
+    "realSeconds": 21.91,
+    "timedOut": false,
+    "outcome": "defeat",
+    "survivedSeconds": 96.4,
+    "damageReceived": 96,
+    "blockedHits": 0,
+    "deadlineDetonations": 0,
+    "deadlineDodges": 0,
+    "coins": 54,
+    "score": 45581,
+    "hazardsCleared": 177,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "coffee",
+      "coffee"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "reply",
+          "printer",
+          "coffee"
+        ],
+        "selected": "coffee"
+      },
+      {
+        "offered": [
+          "coffee",
+          "printer",
+          "shield"
+        ],
+        "selected": "coffee"
+      }
+    ],
+    "events": [
+      "calendar-purge"
+    ],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 147,
+      "meeting": 30,
+      "kpi": 4,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 143,
+      "meeting": 30,
+      "kpi": 4,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 96,
+      "meeting": 0,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  },
+  {
+    "index": 3,
+    "id": "m4-boss-polish-04",
+    "seed": 333758,
+    "character": "blue-recruit",
+    "strategy": "balanced",
+    "cohort": "m4-boss-polish",
+    "acceleratedRate": 8,
+    "realSeconds": 14.26,
+    "timedOut": false,
+    "outcome": "defeat",
+    "survivedSeconds": 60.7,
+    "damageReceived": 122,
+    "blockedHits": 2,
+    "deadlineDetonations": 0,
+    "deadlineDodges": 0,
+    "coins": 56,
+    "score": 18500,
+    "hazardsCleared": 83,
+    "finalEnergy": 0,
+    "perkChoices": [
+      "shield"
+    ],
+    "perkOffers": [
+      {
+        "offered": [
+          "shield",
+          "escape",
+          "printer"
+        ],
+        "selected": "shield"
+      }
+    ],
+    "events": [],
+    "bossPhaseReached": 0,
+    "bossDefeated": false,
+    "bossHealthRemaining": 40,
+    "spawnedByHazard": {
+      "email": 83,
+      "meeting": 15,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "clearedByHazard": {
+      "email": 77,
+      "meeting": 6,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    },
+    "damageBySource": {
+      "email": 72,
+      "meeting": 50,
+      "kpi": 0,
+      "manager": 0,
+      "hr": 0,
+      "client": 0,
+      "deadline": 0,
+      "review": 0,
+      "boss": 0
+    }
+  }
+]

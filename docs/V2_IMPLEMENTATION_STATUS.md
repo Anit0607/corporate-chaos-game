@@ -11,12 +11,12 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 | Living corporate world | Labeled open plan, break room, HR safe space and executive lift; expanded original procedural character/hazard visuals and environmental storytelling. | Implemented foundation |
 | Hazard depth | Email chains, expanding meetings, zigzag KPI forms, accelerating managers, orbiting HR, persistent client calls, timed deadlines and freezing performance reviews. | Implemented |
 | Corporate events | Five seeded run events with visible banners and temporary rule modifiers. | Implemented |
-| Boss/final climax | Regional Director enters during the pre-5-PM Final Escalation with four named phases: summons, area denial, tracking calls and a final PIP burst. Victory requires boss defeat and reaching 5 PM. | Implemented |
+| Boss/final climax | Regional Director enters through a dedicated sequence and identity aura, then moves through four color-coded named phases with pre-attack warnings, safe spawn resolution, phase cues, a dedicated HUD and a defeat sequence. Victory still requires boss defeat and reaching 5 PM. | Milestone 4 complete |
 | Game feel | Spawn telegraphs, boss phase feedback, damage flashes, particles, restrained shake, floating boss damage, dedicated event/boss/shield audio and reduced-motion support. | Implemented |
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
 | Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Thirty deterministic simulation, content and profile-store tests plus a Chrome/Edge lifecycle run covering both recruits, keyboard movement, dash, combat, Escape/focus-loss pause, perks, pause-aware event timing, all boss phases, victory, replay, defeat, cleanup, console errors and 900x600 touch layout. Milestone 3 adds 30 complete baseline balance sessions and 12 complete post-tune sessions. | Implemented locally and in GitHub Actions |
+| Testing | Thirty-two deterministic simulation, content, boss-presentation and profile-store tests plus a Chrome/Edge lifecycle run covering both recruits, different perk builds, input/pause behavior, boss entrance, all phase identities, safe attack placement, boss defeat, 5 PM victory, replay, cleanup, console errors and 900x600 touch layout. Milestone 3 evidence remains in `docs/balance/`. | Implemented locally and in GitHub Actions |
 
 ## Architecture after refactor
 
