@@ -1,6 +1,12 @@
 # Corporate Chaos V2 implementation status
 
-This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`. The `v0.1.0-baseline` Git tag preserves the verified Phase 1 state before V2 changes.
+This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`. The `v0.1.0-baseline` Git tag preserves the verified Phase 1 state before V2 changes. The complete Milestone 3 decision package is consolidated in `docs/M3_BALANCE_REPORT.md`.
+
+## Current review checkpoint
+
+The Milestone 3 evidence audit was reconfirmed on 2026-08-14: 30 accepted baseline sessions, 12 accepted post-tune sessions, zero accepted timeouts, 42 victories and 42 boss defeats. M3 remains stopped at Review Gate 3 pending human approval.
+
+Repository history already contains Milestone 4 work from an earlier authorized pass (`4175b30`). This M3-only audit does not extend, modify, or silently remove that work.
 
 ## Implemented versus requested
 
@@ -16,7 +22,7 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
 | Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Thirty-two deterministic simulation, content, boss-presentation and profile-store tests plus a Chrome/Edge lifecycle run covering both recruits, different perk builds, input/pause behavior, boss entrance, all phase identities, safe attack placement, boss defeat, 5 PM victory, replay, cleanup, console errors and 900x600 touch layout. Milestone 3 evidence remains in `docs/balance/`. | Implemented locally and in GitHub Actions |
+| Testing | Thirty-two deterministic simulation, content, boss-presentation and profile-store tests plus a Chromium lifecycle smoke run. M3 adds 30 accepted baseline and 12 accepted post-tune six-minute sessions; complete results, seeds, observations, tuning and before/after findings are in `docs/M3_BALANCE_REPORT.md`, with raw evidence in `docs/balance/`. | M3 evidence complete; Review Gate 3 |
 
 ## Architecture after refactor
 
@@ -51,12 +57,12 @@ src/
 - Cool Head is deliberately safer for first-time players; its boundary recharge is visible in the HUD.
 - Boss health scales with the available boss window so short QA runs remain completable.
 - Event and hazard selection use a supplied seed, making reported balance problems reproducible.
-- Structured M3 evidence shows both characters, all hazards, all perks, all events and all boss phases viable; human telemetry and physical-device sessions are still required before a public 1.0 balance lock.
+- Structured M3 evidence shows both characters, all hazards, all perks, all events and all boss phases viable across 42 accepted sessions. See `docs/M3_BALANCE_REPORT.md`; human telemetry and physical-device sessions are still required before a public 1.0 balance lock.
 
 ## Remaining gaps and prioritized next sprint
 
 1. Replace/extend procedural actors with normalized multi-frame authored sprite animation while preserving collision anchors.
-2. Completed: 30 complete baseline shifts plus 12 post-tune shifts, evidence matrix and conservative deadline/review/rank tuning in `docs/balance/`.
+2. Completed: 30 complete baseline shifts plus 12 post-tune shifts, evidence matrix and conservative deadline/review/rank tuning. Review Gate 3 evidence is consolidated in `docs/M3_BALANCE_REPORT.md`.
 3. Test landscape touch controls on low/mid-range Android hardware and tune button size, safe areas and particle budgets.
 4. Provision a managed Chromium executable in CI and run the existing `test:browser` smoke suite on pull requests.
 5. Connect the Vercel GitHub app so pushes automatically create preview and production deployments.
