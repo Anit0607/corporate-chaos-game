@@ -1,5 +1,5 @@
 {
-  "validatedAt": "2026-08-14",
+  "validatedAt": "2026-08-16",
   "ok": true,
   "bossPhasesVerified": [1, 2, 3, 4],
   "bossPolishVerified": [
@@ -14,7 +14,20 @@
     { "character": "blue-recruit", "perks": ["snack"] },
     { "character": "red-recruit", "perks": ["reply", "printer"] }
   ],
-  "minimumMeasuredBossSpawnDistance": 225.18826254279972,
+  "minimumMeasuredBossSpawnDistance": 260.8812943976255,
   "cleanupVerified": true,
-  "compactLayoutVerified": true
+  "compactLayoutVerified": true,
+  "m3BalancePreserved": true,
+  "m5WorkStarted": false,
+  "regression": {
+    "typecheck": true,
+    "tests": {
+      "files": 5,
+      "tests": 32,
+      "passed": true
+    },
+    "productionBuild": true,
+    "browserLifecycle": true,
+    "screenshotReview": true
+  }
 }

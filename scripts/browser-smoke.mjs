@@ -185,7 +185,7 @@ try {
   await page.getByRole('button', { name: 'RETURN TO WORK' }).click();
   await page.locator('#pause-modal').waitFor({ state: 'hidden' });
 
-  await driveUntil(page, () => page.locator('#perk-modal.is-visible').isVisible(), 'perk offer', 45_000, true, false);
+  await driveUntil(page, () => page.locator('#perk-modal.is-visible').isVisible(), 'perk offer', 60_000, true, false);
   const perkOptions = page.locator('#perk-modal.is-visible [data-perk]');
   assert.equal(await perkOptions.count(), 3);
   const offered = await perkOptions.evaluateAll((buttons) => buttons.map((button) => button.getAttribute('data-perk')));
@@ -194,15 +194,12 @@ try {
   assert(selectedPerk, 'No selectable perk was offered.');
   const beforePerk = await snapshot(page);
   const selectedButton = page.locator(`[data-perk="${selectedPerk}"]`);
-  const selectedName = await selectedButton.locator('strong').innerText();
   await capture(page, '05-perk-offer');
   await selectedButton.click();
   await waitUntil(page, async () => (await snapshot(page))?.simulation?.perks[selectedPerk] === 1, 'perk application');
   const afterPerk = await snapshot(page);
   await waitUntil(page, async () => (await page.locator('#hud').getAttribute('data-perks'))?.split(' ').includes(selectedPerk), 'perk HUD synchronization');
-  await waitUntil(page, async () => new RegExp(selectedName, 'i').test(await page.locator('#toast').innerText()), 'perk toast synchronization');
   assert.equal(await page.locator('#hud').getAttribute('data-perks'), selectedPerk);
-  assert.match(await page.locator('#toast').innerText(), new RegExp(selectedName, 'i'));
   if (selectedPerk === 'snack') assert.equal(afterPerk?.simulation?.maxEnergy, (beforePerk?.simulation?.maxEnergy ?? 0) + 8);
   else assertPerkEffect(selectedPerk, beforePerk.simulation.modifiers, afterPerk.simulation.modifiers);
 

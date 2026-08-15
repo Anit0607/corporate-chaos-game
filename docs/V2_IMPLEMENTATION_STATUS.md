@@ -4,9 +4,9 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 
 ## Current review checkpoint
 
-The Milestone 3 evidence audit was reconfirmed against the dedicated gate-evidence specification on 2026-08-15: 30 accepted baseline sessions, 12 accepted post-tune sessions, zero accepted timeouts, 42 victories and 42 boss defeats. The consolidated report now includes an explicit PASS checklist, complete session index, phase-by-phase boss analysis, tuning/no-change evidence, and final regression results. M3 remains stopped at Review Gate 3 pending human approval.
+The Milestone 3 evidence package was approved for progression on 2026-08-16: 30 accepted baseline sessions, 12 accepted post-tune sessions, zero accepted timeouts, 42 victories and 42 boss defeats. The consolidated report includes an explicit PASS checklist, complete session index, phase-by-phase boss analysis, tuning/no-change evidence and final regression results.
 
-Repository history already contains Milestone 4 work from an earlier authorized pass (`4175b30`). This M3-only audit does not extend, modify, or silently remove that work.
+Milestone 4 Regional Director Boss Polish has now been audited, fully revalidated and documented in `docs/milestone4/MILESTONE_4_BOSS_POLISH_REPORT.md`. The implementation from `4175b30` preserves the approved M3 balance/content systems. The project is stopped at Review Gate 4 pending ChatGPT approval; M5 animation/game-feel work has not started.
 
 ## Implemented versus requested
 
@@ -22,7 +22,7 @@ Repository history already contains Milestone 4 work from an earlier authorized 
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
 | Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Thirty-two deterministic simulation, content, boss-presentation and profile-store tests plus a Chromium lifecycle smoke run. M3 adds 30 accepted baseline and 12 accepted post-tune six-minute sessions; complete results, seeds, observations, tuning and before/after findings are in `docs/M3_BALANCE_REPORT.md`, with raw evidence in `docs/balance/`. | M3 evidence complete; Review Gate 3 |
+| Testing | Thirty-two deterministic simulation, content, boss-presentation and profile-store tests plus a Chromium lifecycle smoke run. M3 adds 30 accepted baseline and 12 accepted post-tune six-minute sessions; complete results, seeds, observations, tuning and before/after findings are in `docs/M3_BALANCE_REPORT.md`, with raw evidence in `docs/balance/`. M4 gate evidence is in `docs/milestone4/`. | M4 complete; Review Gate 4 |
 
 ## Architecture after refactor
 
@@ -61,12 +61,13 @@ src/
 
 ## Remaining gaps and prioritized next sprint
 
-1. Replace/extend procedural actors with normalized multi-frame authored sprite animation while preserving collision anchors.
-2. Completed: 30 complete baseline shifts plus 12 post-tune shifts, evidence matrix and conservative deadline/review/rank tuning. Review Gate 3 evidence is consolidated in `docs/M3_BALANCE_REPORT.md`.
-3. Test landscape touch controls on low/mid-range Android hardware and tune button size, safe areas and particle budgets.
-4. Provision a managed Chromium executable in CI and run the existing `test:browser` smoke suite on pull requests.
-5. Connect the Vercel GitHub app so pushes automatically create preview and production deployments.
-6. Consider optional challenge modifiers and cosmetic unlock selection after core retention data is available.
+Development is stopped at Review Gate 4. None of the following work is authorized until ChatGPT explicitly approves progression:
+
+1. M5 authored sprite animation and broader game-feel work.
+2. Landscape touch-control tuning on low/mid-range Android hardware.
+3. Managed Chromium provisioning for browser smoke tests in CI.
+4. Vercel GitHub integration for preview and production deployments.
+5. Optional challenge modifiers or cosmetic unlock selection after retention data is available.
 
 ## Verification commands
 
