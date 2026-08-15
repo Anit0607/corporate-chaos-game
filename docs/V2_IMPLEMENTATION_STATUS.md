@@ -4,7 +4,7 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 
 ## Current review checkpoint
 
-The Milestone 3 evidence audit was reconfirmed on 2026-08-14: 30 accepted baseline sessions, 12 accepted post-tune sessions, zero accepted timeouts, 42 victories and 42 boss defeats. M3 remains stopped at Review Gate 3 pending human approval.
+The Milestone 3 evidence audit was reconfirmed against the dedicated gate-evidence specification on 2026-08-15: 30 accepted baseline sessions, 12 accepted post-tune sessions, zero accepted timeouts, 42 victories and 42 boss defeats. The consolidated report now includes an explicit PASS checklist, complete session index, phase-by-phase boss analysis, tuning/no-change evidence, and final regression results. M3 remains stopped at Review Gate 3 pending human approval.
 
 Repository history already contains Milestone 4 work from an earlier authorized pass (`4175b30`). This M3-only audit does not extend, modify, or silently remove that work.
 
