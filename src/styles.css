@@ -101,6 +101,12 @@ button:focus-visible {
   visibility: visible;
   opacity: 1;
   pointer-events: auto;
+  animation: screen-settle 280ms cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+@keyframes screen-settle {
+  from { filter: saturate(0.78) brightness(0.84); }
+  to { filter: saturate(1) brightness(1); }
 }
 
 .menu-screen {
@@ -1052,6 +1058,11 @@ button:focus-visible {
 .boss-warning { display: flex; align-items: center; justify-content: space-between; max-height: 0; margin-top: 0; overflow: hidden; color: var(--boss-accent, #ff4d8d); font-size: 8px; font-weight: 900; letter-spacing: 0.12em; opacity: 0; transition: max-height 120ms ease, margin 120ms ease, opacity 120ms ease; }
 .boss-warning.is-visible { max-height: 22px; margin-top: 7px; opacity: 1; }
 .boss-warning b { color: #fff; }
+.boss-warning.is-visible b { animation: boss-warning-beat 360ms steps(2, end) 2; }
+
+@keyframes boss-warning-beat {
+  50% { color: var(--boss-accent, #ff4d8d); text-shadow: 0 0 12px var(--boss-accent, #ff4d8d); }
+}
 
 .boss-announcement {
   position: absolute;
@@ -1073,11 +1084,32 @@ button:focus-visible {
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
-.boss-announcement.is-visible { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.boss-announcement::after {
+  position: absolute;
+  inset: 0 auto 0 -18%;
+  width: 12%;
+  content: "";
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--boss-accent, #ff4d8d) 24%, transparent), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+.boss-announcement.is-visible { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); animation: boss-card-impact 220ms cubic-bezier(0.18, 0.86, 0.26, 1); }
+.boss-announcement.is-visible::after { animation: boss-card-scan 560ms ease-out; }
 .boss-announcement span { color: var(--boss-accent, #ff4d8d); font-size: 9px; font-weight: 900; letter-spacing: 0.2em; }
 .boss-announcement strong { display: block; margin-top: 5px; font-family: Impact, "Arial Narrow Bold", sans-serif; font-size: clamp(30px, 5vw, 54px); letter-spacing: 0.07em; line-height: 1; }
 .boss-announcement p { margin: 7px 0 0; color: #b8c9df; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; }
 .boss-announcement[data-kind="defeat"] { --boss-accent: #9ce65c; }
+
+@keyframes boss-card-impact {
+  from { transform: translate(-50%, -47%) scale(0.9); filter: brightness(1.65); }
+  to { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+}
+
+@keyframes boss-card-scan {
+  0% { left: -18%; opacity: 0; }
+  18% { opacity: 1; }
+  100% { left: 106%; opacity: 0; }
+}
 
 .event-banner {
   position: absolute;

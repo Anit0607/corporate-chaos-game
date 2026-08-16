@@ -4,9 +4,9 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 
 ## Current review checkpoint
 
-The Milestone 3 evidence package was approved for progression on 2026-08-16: 30 accepted baseline sessions, 12 accepted post-tune sessions, zero accepted timeouts, 42 victories and 42 boss defeats. The consolidated report includes an explicit PASS checklist, complete session index, phase-by-phase boss analysis, tuning/no-change evidence and final regression results.
+The Milestone 3 evidence package and Milestone 4 Regional Director Boss Polish gate were approved for progression. M4 is formally closed at `83afb97df4b70a0e3c52e1319881f07bb47b45f8`.
 
-Milestone 4 Regional Director Boss Polish has now been audited, fully revalidated and documented in `docs/milestone4/MILESTONE_4_BOSS_POLISH_REPORT.md`. The implementation from `4175b30` preserves the approved M3 balance/content systems. The project is stopped at Review Gate 4 pending ChatGPT approval; M5 animation/game-feel work has not started.
+Milestone 5 Animation / Game Feel is complete and documented in `docs/milestone5/MILESTONE_5_ANIMATION_GAME_FEEL_REPORT.md`. It adds packed procedural character animations, responsive presentation, combat/hit/hazard/boss feedback, transition polish, layered synthesized audio, and reduced-motion handling without modifying simulation or content rules. The project is stopped at Review Gate 5 pending ChatGPT approval; M6 has not started.
 
 ## Implemented versus requested
 
@@ -18,11 +18,11 @@ Milestone 4 Regional Director Boss Polish has now been audited, fully revalidate
 | Hazard depth | Email chains, expanding meetings, zigzag KPI forms, accelerating managers, orbiting HR, persistent client calls, timed deadlines and freezing performance reviews. | Implemented |
 | Corporate events | Five seeded run events with visible banners and temporary rule modifiers. | Implemented |
 | Boss/final climax | Regional Director enters through a dedicated sequence and identity aura, then moves through four color-coded named phases with pre-attack warnings, safe spawn resolution, phase cues, a dedicated HUD and a defeat sequence. Victory still requires boss defeat and reaching 5 PM. | Milestone 4 complete |
-| Game feel | Spawn telegraphs, boss phase feedback, damage flashes, particles, restrained shake, floating boss damage, dedicated event/boss/shield audio and reduced-motion support. | Implemented |
+| Game feel | Packed idle/move/attack/dash/hurt animation for both recruits; launch trails, impact shards, hit/hazard/boss shockwaves, transition scans, layered synthesized cues, restrained shake and reduced-motion support. | Milestone 5 complete |
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
 | Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Thirty-two deterministic simulation, content, boss-presentation and profile-store tests plus a Chromium lifecycle smoke run. M3 adds 30 accepted baseline and 12 accepted post-tune six-minute sessions; complete results, seeds, observations, tuning and before/after findings are in `docs/M3_BALANCE_REPORT.md`, with raw evidence in `docs/balance/`. M4 gate evidence is in `docs/milestone4/`. | M4 complete; Review Gate 4 |
+| Testing | Thirty-five deterministic simulation, content, boss-presentation, profile-store and animation-catalog tests across 6 files plus an expanded Chromium lifecycle smoke run. M3 balance evidence remains in `docs/M3_BALANCE_REPORT.md`; M4 evidence is in `docs/milestone4/`; M5 animation/game-feel evidence is in `docs/milestone5/`. | M5 complete; Review Gate 5 |
 
 ## Architecture after refactor
 
@@ -61,9 +61,9 @@ src/
 
 ## Remaining gaps and prioritized next sprint
 
-Development is stopped at Review Gate 4. None of the following work is authorized until ChatGPT explicitly approves progression:
+Development is stopped at Review Gate 5. None of the following work is authorized until ChatGPT explicitly approves progression:
 
-1. M5 authored sprite animation and broader game-feel work.
+1. Any Milestone 6 feature or content work.
 2. Landscape touch-control tuning on low/mid-range Android hardware.
 3. Managed Chromium provisioning for browser smoke tests in CI.
 4. Vercel GitHub integration for preview and production deployments.

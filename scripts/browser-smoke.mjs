@@ -140,6 +140,9 @@ try {
   assert.equal(initial.character, 'blue-recruit');
   assert.equal(initial.simulation.maxEnergy, 118);
   assert.equal(initial.player.texture, 'player-blue');
+  assert.equal(initial.player.visualState, 'idle');
+  assert.equal(initial.player.animation, 'player-blue-idle');
+  assert.match(initial.player.renderTexture, /^player-blue-idle-sheet$/);
   assert.equal(await page.locator('#hud').getAttribute('data-character'), 'blue-recruit');
   const stableSubscriptions = initial.sceneSubscriptions;
   const stableBusListeners = initial.busListeners;
@@ -149,10 +152,17 @@ try {
   await page.waitForTimeout(650);
   const moved = await snapshot(page);
   assert((moved?.player.x ?? 0) > startX + 10, 'Keyboard movement did not move the player right.');
+  assert.equal(moved?.player.visualState, 'move');
+  assert.equal(moved?.player.animation, 'player-blue-move');
+  const firstMoveFrame = moved?.player.renderFrame;
+  await page.waitForTimeout(100);
+  const nextMoveFrame = (await snapshot(page))?.player.renderFrame;
+  assert.notEqual(nextMoveFrame, firstMoveFrame, 'Packed movement animation did not advance frames in-engine.');
   await waitUntil(page, async () => Boolean((await snapshot(page))?.player.dashReady), 'dash ready');
   await page.keyboard.down('Space');
   try {
     await waitUntil(page, async () => Boolean((await snapshot(page))?.player.dashing), 'dash start', 2_000);
+    assert.equal((await snapshot(page))?.player.visualState, 'dash');
   } finally {
     await page.keyboard.up('Space');
   }
@@ -160,7 +170,20 @@ try {
   assert.match(await page.locator('#dash-chip').innerText(), /RECHARGING/);
   await page.keyboard.up('ArrowRight');
   await waitUntil(page, async () => (await snapshot(page))?.activeEntities.projectiles > 0, 'automatic combat projectile', 5_000);
+  await waitUntil(page, async () => (await snapshot(page))?.player.visualState === 'attack', 'attack animation', 3_000);
+  assert.equal((await snapshot(page))?.player.animation, 'player-blue-attack');
   await capture(page, '04-keyboard-combat');
+
+  await page.waitForTimeout(950);
+  const energyBeforeHit = (await snapshot(page))?.simulation?.energy ?? 0;
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.spawnContactHazard());
+  await page.waitForTimeout(900);
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.spawnContactHazard());
+  await waitUntil(page, async () => ((await snapshot(page))?.simulation?.energy ?? energyBeforeHit) < energyBeforeHit, 'player hit feedback', 3_000);
+  await waitUntil(page, async () => (await snapshot(page))?.player.visualState === 'hurt', 'hurt animation', 1_000);
+  assert.equal((await snapshot(page))?.player.animation, 'player-blue-hurt');
+  await capture(page, '04b-player-hit-feedback');
+  await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.restorePlayer());
 
   await page.keyboard.down('Escape');
   try {
@@ -315,6 +338,7 @@ try {
   assert.equal(firestarter?.character, 'red-recruit');
   assert.equal(firestarter?.simulation?.maxEnergy, 92);
   assert.equal(firestarter?.player.texture, 'player-red');
+  assert.match(firestarter?.player.animation ?? '', /^player-red-(idle|attack)$/);
   assert.equal(await page.locator('#hud').getAttribute('data-character'), 'red-recruit');
   await page.evaluate(() => window.__CORPORATE_CHAOS_E2E__?.prepareBoss(['reply', 'printer']));
   await driveUntil(page, () => page.locator('#boss-hud.is-visible').isVisible(), 'Firestarter boss encounter', 8_000, true);
@@ -346,11 +370,22 @@ try {
   await page.waitForTimeout(350);
   await capture(page, '13-compact-gameplay');
 
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(`${baseUrl}/?duration=30&seed=20260812&e2e=1`, { waitUntil: 'domcontentloaded' });
+  await enterShift(page, 'blue-recruit');
+  assert.equal((await snapshot(page))?.reducedMotion, true);
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(350);
+  await page.keyboard.up('ArrowRight');
+  assert.match((await snapshot(page))?.player.animation ?? '', /^player-blue-(move|idle)$/);
+  await capture(page, '14-reduced-motion-gameplay');
+
   if (browserErrors.length) throw new Error(browserErrors.join('\n'));
   summary = JSON.stringify({
     ok: true,
     lifecycle: ['menu', 'character', 'briefing', 'run', 'perk', 'event', 'boss', 'victory', 'result', 'replay', 'defeat'],
     inputs: ['keyboard movement', 'dash', 'automatic combat', 'Escape pause/resume', 'focus-loss pause'],
+    animationStatesVerified: ['idle', 'move', 'dash', 'attack', 'hurt'],
     selectedPerk,
     eventId,
     bossPhasesVerified: [1, 2, 3, 4],
@@ -363,6 +398,7 @@ try {
     cleanupVerified: true,
     characterIntegrationVerified: ['blue-recruit', 'red-recruit'],
     compactLayoutVerified: true,
+    reducedMotionVerified: true,
     screenshots: outputDir,
   }, null, 2);
 } catch (error) {

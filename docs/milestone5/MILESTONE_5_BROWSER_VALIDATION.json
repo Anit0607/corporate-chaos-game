@@ -1,0 +1,67 @@
+{
+  "validatedAt": "2026-08-16",
+  "baselineHead": "83afb97df4b70a0e3c52e1319881f07bb47b45f8",
+  "ok": true,
+  "animationStatesVerified": ["idle", "move", "dash", "attack", "hurt"],
+  "animationFrames": {
+    "idle": 4,
+    "move": 6,
+    "attack": 3,
+    "dash": 3,
+    "hurt": 2
+  },
+  "characterIntegrationVerified": ["blue-recruit", "red-recruit"],
+  "bossPhasesVerified": [1, 2, 3, 4],
+  "bossBuildsVerified": [
+    { "character": "blue-recruit", "perks": ["shield"] },
+    { "character": "red-recruit", "perks": ["reply", "printer"] }
+  ],
+  "selectedEvent": "calendar-purge",
+  "m4BossContracts": {
+    "entranceDurationMs": 1400,
+    "attackWarningMs": 720,
+    "defeatFadeMs": 900,
+    "minimumMeasuredBossSpawnDistance": 374.21286776118535,
+    "fivePmHoldVerified": true
+  },
+  "lifecycleVerified": [
+    "menu",
+    "character",
+    "briefing",
+    "run",
+    "perk",
+    "event",
+    "boss",
+    "victory",
+    "result",
+    "replay",
+    "defeat"
+  ],
+  "inputsVerified": [
+    "keyboard movement",
+    "dash",
+    "automatic combat",
+    "Escape pause/resume",
+    "focus-loss pause"
+  ],
+  "cleanupVerified": true,
+  "compactLayoutVerified": true,
+  "reducedMotionVerified": true,
+  "visualReviewPassed": true,
+  "gameplayPreservation": {
+    "simulationOrContentRulesChanged": false,
+    "m4BossBehaviorChanged": false,
+    "m6WorkStarted": false
+  },
+  "regression": {
+    "typecheck": true,
+    "tests": {
+      "files": 6,
+      "tests": 35,
+      "passed": true
+    },
+    "productionBuild": true,
+    "browserLifecycle": true
+  },
+  "unresolvedBlockingIssues": []
+}

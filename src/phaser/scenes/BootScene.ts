@@ -1,5 +1,24 @@
 import Phaser from 'phaser';
 import { gameBus } from '../../game/events';
+import {
+  CHARACTER_ANIMATION_SPECS,
+  characterAnimationKey,
+  characterAnimationSheetKey,
+  type CharacterAnimationState,
+} from '../animation/animationCatalog';
+
+const PLAYER_FRAME_WIDTH = 58;
+const PLAYER_FRAME_HEIGHT = 68;
+
+interface PlayerPose {
+  bob: number;
+  stride: number;
+  armSwing: number;
+  lean: number;
+  reach: number;
+  squash: number;
+  hurt: boolean;
+}
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -7,8 +26,8 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.createPlayerTexture('player-red', 0xf33d53);
-    this.createPlayerTexture('player-blue', 0x3f7dff);
+    this.createPlayerAnimationSet('player-red', 0xf33d53);
+    this.createPlayerAnimationSet('player-blue', 0x3f7dff);
     this.createEmailTexture();
     this.createMeetingTexture();
     this.createKpiTexture();
@@ -29,20 +48,95 @@ export class BootScene extends Phaser.Scene {
     return this.make.graphics({ x: 0, y: 0 });
   }
 
-  private createPlayerTexture(key: string, suitColor: number): void {
+  private createPlayerAnimationSet(key: string, suitColor: number): void {
     const g = this.graphics();
-    g.fillStyle(0x020916, 0.3).fillEllipse(28, 62, 40, 10);
-    g.fillStyle(0x10162a).fillRoundedRect(17, 44, 10, 20, 4).fillRoundedRect(31, 44, 10, 20, 4);
-    g.lineStyle(4, 0x061126).fillStyle(suitColor).fillRoundedRect(11, 25, 36, 31, 8).strokeRoundedRect(11, 25, 36, 31, 8);
-    g.fillStyle(0xfff4dc).fillTriangle(18, 28, 40, 28, 29, 43);
-    g.fillStyle(0x061126).fillTriangle(26, 31, 32, 31, 29, 45);
-    g.lineStyle(4, 0x061126).fillStyle(0xf0b486).fillCircle(29, 17, 15).strokeCircle(29, 17, 15);
-    g.fillStyle(0x151728).fillEllipse(28, 8, 30, 15).fillTriangle(12, 10, 20, 1, 23, 13).fillTriangle(33, 7, 44, 2, 39, 16);
-    g.fillStyle(0xffffff).fillCircle(24, 18, 3).fillCircle(34, 18, 3);
-    g.fillStyle(0x061126).fillCircle(24, 18, 1.5).fillCircle(34, 18, 1.5);
-    g.fillStyle(0x061126).fillRoundedRect(24, 23, 10, 2, 1);
-    g.generateTexture(key, 58, 68);
+    this.drawPlayerFrame(g, 0, suitColor, this.playerPose('idle', 0, 4));
+    g.generateTexture(key, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT);
     g.destroy();
+
+    CHARACTER_ANIMATION_SPECS.forEach((spec) => {
+      const sheetKey = characterAnimationSheetKey(key, spec.state);
+      const sheet = this.graphics();
+      for (let index = 0; index < spec.frameCount; index += 1) {
+        this.drawPlayerFrame(sheet, index * PLAYER_FRAME_WIDTH, suitColor, this.playerPose(spec.state, index, spec.frameCount));
+      }
+      sheet.generateTexture(sheetKey, PLAYER_FRAME_WIDTH * spec.frameCount, PLAYER_FRAME_HEIGHT);
+      sheet.destroy();
+      const texture = this.textures.get(sheetKey);
+      for (let index = 0; index < spec.frameCount; index += 1) {
+        texture.add(String(index), 0, index * PLAYER_FRAME_WIDTH, 0, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT);
+      }
+      const animationKey = characterAnimationKey(key, spec.state);
+      if (!this.anims.exists(animationKey)) {
+        this.anims.create({
+          key: animationKey,
+          frames: Array.from({ length: spec.frameCount }, (_, index) => ({ key: sheetKey, frame: String(index) })),
+          frameRate: spec.frameRate,
+          repeat: spec.repeat,
+        });
+      }
+    });
+  }
+
+  private playerPose(state: CharacterAnimationState, index: number, frameCount: number): PlayerPose {
+    const phase = (index / frameCount) * Math.PI * 2;
+    if (state === 'idle') {
+      return { bob: index === 1 ? -1 : 0, stride: 0, armSwing: 0, lean: 0, reach: 0, squash: index === 1 ? 0.025 : 0, hurt: false };
+    }
+    if (state === 'move') {
+      return {
+        bob: Math.cos(phase * 2) > 0.2 ? -2 : 0,
+        stride: Math.round(Math.sin(phase) * 4),
+        armSwing: Math.round(Math.sin(phase) * 3),
+        lean: 1,
+        reach: 0,
+        squash: Math.cos(phase * 2) * 0.025,
+        hurt: false,
+      };
+    }
+    if (state === 'attack') {
+      const reach = [0, 4, 2][index] ?? 0;
+      return { bob: index === 1 ? 1 : 0, stride: index === 1 ? -2 : 0, armSwing: 0, lean: index === 1 ? 2 : 0, reach, squash: index === 1 ? -0.05 : 0, hurt: false };
+    }
+    if (state === 'dash') {
+      return { bob: index === 1 ? -1 : 0, stride: index === 1 ? 5 : 3, armSwing: -4, lean: 4, reach: 2, squash: -0.08, hurt: false };
+    }
+    return { bob: index === 0 ? 1 : -1, stride: -2, armSwing: 2, lean: index === 0 ? -4 : 3, reach: 0, squash: 0.09, hurt: true };
+  }
+
+  private drawPlayerFrame(g: Phaser.GameObjects.Graphics, offsetX: number, suitColor: number, pose: PlayerPose): void {
+    const x = (value: number): number => offsetX + value + pose.lean;
+    const bodyTop = 25 + pose.bob;
+    const bodyHeight = 31 * (1 - pose.squash);
+    g.fillStyle(0x020916, 0.3).fillEllipse(offsetX + 28, 62, 40 + Math.abs(pose.stride), 10);
+    g.fillStyle(0x10162a)
+      .fillRoundedRect(x(17 + pose.stride), 44 + pose.bob, 10, 20 - pose.bob, 4)
+      .fillRoundedRect(x(31 - pose.stride), 44 + pose.bob, 10, 20 - pose.bob, 4);
+    g.lineStyle(4, 0x061126)
+      .fillStyle(suitColor)
+      .fillRoundedRect(x(7 - pose.armSwing), bodyTop + 5, 10, 24, 5)
+      .strokeRoundedRect(x(7 - pose.armSwing), bodyTop + 5, 10, 24, 5)
+      .fillRoundedRect(x(41 + pose.armSwing), bodyTop + 5, 10 + pose.reach, 24, 5)
+      .strokeRoundedRect(x(41 + pose.armSwing), bodyTop + 5, 10 + pose.reach, 24, 5)
+      .fillRoundedRect(x(11), bodyTop, 36, bodyHeight, 8)
+      .strokeRoundedRect(x(11), bodyTop, 36, bodyHeight, 8);
+    if (pose.reach > 0) g.fillStyle(0xf0b486).fillCircle(x(49 + pose.reach), bodyTop + 17, 4);
+    g.fillStyle(0xfff4dc).fillTriangle(x(18), bodyTop + 3, x(40), bodyTop + 3, x(29), bodyTop + 18);
+    g.fillStyle(0x061126).fillTriangle(x(26), bodyTop + 6, x(32), bodyTop + 6, x(29), bodyTop + 20);
+    g.lineStyle(4, 0x061126).fillStyle(0xf0b486).fillCircle(x(29), 17 + pose.bob, 15).strokeCircle(x(29), 17 + pose.bob, 15);
+    g.fillStyle(0x151728)
+      .fillEllipse(x(28), 8 + pose.bob, 30, 15)
+      .fillTriangle(x(12), 10 + pose.bob, x(20), 1 + pose.bob, x(23), 13 + pose.bob)
+      .fillTriangle(x(33), 7 + pose.bob, x(44), 2 + pose.bob, x(39), 16 + pose.bob);
+    if (pose.hurt) {
+      g.lineStyle(2, 0x061126)
+        .lineBetween(x(21), 17 + pose.bob, x(26), 20 + pose.bob)
+        .lineBetween(x(32), 20 + pose.bob, x(37), 17 + pose.bob);
+    } else {
+      g.fillStyle(0xffffff).fillCircle(x(24), 18 + pose.bob, 3).fillCircle(x(34), 18 + pose.bob, 3);
+      g.fillStyle(0x061126).fillCircle(x(24), 18 + pose.bob, 1.5).fillCircle(x(34), 18 + pose.bob, 1.5);
+    }
+    g.fillStyle(0x061126).fillRoundedRect(x(24), 23 + pose.bob, 10, 2, 1);
   }
 
   private createEmailTexture(): void {

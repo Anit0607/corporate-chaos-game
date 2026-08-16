@@ -15,6 +15,7 @@ declare global {
       prepareBoss: (perks: string[]) => void;
       primeBossAttack: () => void;
       clockOut: () => void;
+      spawnContactHazard: () => void;
     };
   }
 }
@@ -63,5 +64,6 @@ if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('e2e'
     prepareBoss: (perks: string[]) => shiftScene().integrationPrepareBoss(perks),
     primeBossAttack: () => shiftScene().integrationPrimeBossAttack(),
     clockOut: () => shiftScene().integrationClockOut(),
+    spawnContactHazard: () => shiftScene().integrationSpawnContactHazard(),
   });
 }
