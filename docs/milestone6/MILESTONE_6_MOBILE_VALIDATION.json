@@ -1,0 +1,77 @@
+{
+  "validatedAt": "2026-08-16",
+  "baselineHead": "8627873cd155368a9b92249bf28c440720ee88f0",
+  "status": "automated-readiness-pass-physical-android-pending",
+  "evidenceType": "desktop Chromium with Android user agent, touch input, mobile viewport and device-scale emulation",
+  "physicalAndroidDeviceVerified": false,
+  "layoutMatrix": [
+    { "id": "android-large", "width": 915, "height": 412, "deviceScaleFactor": 2.625, "horizontalOverflow": false, "pauseTarget": [44, 44] },
+    { "id": "android-standard", "width": 844, "height": 390, "deviceScaleFactor": 3, "horizontalOverflow": false, "pauseTarget": [44, 44] },
+    { "id": "android-small", "width": 740, "height": 360, "deviceScaleFactor": 2, "horizontalOverflow": false, "pauseTarget": [44, 44] },
+    { "id": "compact-contract", "width": 900, "height": 600, "deviceScaleFactor": 2, "horizontalOverflow": false, "pauseTarget": [44, 44] },
+    { "id": "tablet-landscape", "width": 1024, "height": 600, "deviceScaleFactor": 2, "horizontalOverflow": false, "pauseTarget": [44, 44] }
+  ],
+  "portraitGateVerified": true,
+  "touchVerified": [
+    "continuous hold",
+    "release to zero",
+    "two-pointer diagonal",
+    "touch dash",
+    "44px targets",
+    "pause/dash non-overlap",
+    "background input clear"
+  ],
+  "lifecycleVerified": [
+    "background pause",
+    "audio suspend/resume",
+    "victory",
+    "defeat",
+    "replay",
+    "entity and timer cleanup"
+  ],
+  "charactersVerified": ["blue-recruit", "red-recruit"],
+  "bossPhasesVerified": [1, 2, 3, 4],
+  "minimumBossSpawnDistance": 225.00000000000003,
+  "acceleratedShift": {
+    "simulatedSeconds": 324.0980400000074,
+    "balanceRate": 6
+  },
+  "performance": {
+    "sampledFrames": 3242,
+    "averageFrameMs": 16.66578449516756,
+    "maximumFrameMs": 16.710000000000218,
+    "framesOver33Ms": 0,
+    "actualFps": 60.29915830456875,
+    "longFrameRatio": 0,
+    "maximumEntities": {
+      "hazards": 36,
+      "projectiles": 2,
+      "coins": 7,
+      "effects": 49,
+      "timers": 3
+    },
+    "heapBefore": 55087364,
+    "heapAfter": 56396440,
+    "heapDelta": 1309076
+  },
+  "audioVerified": [
+    "user-gesture unlock",
+    "background suspend",
+    "resume gesture",
+    "mute persistence"
+  ],
+  "regression": {
+    "typecheck": true,
+    "tests": { "files": 6, "tests": 35, "passed": true },
+    "productionBuild": true,
+    "desktopBrowserLifecycle": true,
+    "m3ToM5GameplayPreserved": true
+  },
+  "acceptance": {
+    "passed": 11,
+    "pending": 1,
+    "total": 12,
+    "pendingItem": "physical Android Chrome/device validation"
+  },
+  "m7Started": false
+}

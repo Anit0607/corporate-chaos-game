@@ -65,6 +65,7 @@ export type GameEventMap = {
   'ui:character': CharacterId;
   'ui:briefing-complete': undefined;
   'ui:pause-toggle': undefined;
+  'ui:pause-request': undefined;
   'ui:resume': undefined;
   'ui:restart': undefined;
   'ui:menu': undefined;

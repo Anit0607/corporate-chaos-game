@@ -4,9 +4,9 @@ This file maps the repository to `Corporate_Chaos_V2_Development_Blueprint.docx`
 
 ## Current review checkpoint
 
-The Milestone 3 evidence package and Milestone 4 Regional Director Boss Polish gate were approved for progression. M4 is formally closed at `83afb97df4b70a0e3c52e1319881f07bb47b45f8`.
+The Milestone 3 evidence package and Milestone 4 Regional Director Boss Polish gate were approved for progression. M4 is formally closed at `83afb97df4b70a0e3c52e1319881f07bb47b45f8`. Milestone 5 Animation / Game Feel was approved and is formally closed at `8627873cd155368a9b92249bf28c440720ee88f0`.
 
-Milestone 5 Animation / Game Feel is complete and documented in `docs/milestone5/MILESTONE_5_ANIMATION_GAME_FEEL_REPORT.md`. It adds packed procedural character animations, responsive presentation, combat/hit/hazard/boss feedback, transition polish, layered synthesized audio, and reduced-motion handling without modifying simulation or content rules. The project is stopped at Review Gate 5 pending ChatGPT approval; M6 has not started.
+Milestone 6 Mobile Validation / Device Readiness has completed its mobile-specific implementation and automated evidence package in `docs/milestone6/MILESTONE_6_MOBILE_READINESS_REPORT.md`. Touch, compact layouts, safe areas, orientation, background pause/input clearing, audio lifecycle state, both characters, the full boss lifecycle, victory/defeat/replay, desktop regression and an accelerated soak pass in Android-emulated Chromium. Physical Android Chrome/device evidence is still pending because no device or ADB runtime was available. The project is stopped at Review Gate 6 with 11/12 criteria passed and M7 locked.
 
 ## Implemented versus requested
 
@@ -20,9 +20,9 @@ Milestone 5 Animation / Game Feel is complete and documented in `docs/milestone5
 | Boss/final climax | Regional Director enters through a dedicated sequence and identity aura, then moves through four color-coded named phases with pre-attack warnings, safe spawn resolution, phase cues, a dedicated HUD and a defeat sequence. Victory still requires boss defeat and reaching 5 PM. | Milestone 4 complete |
 | Game feel | Packed idle/move/attack/dash/hurt animation for both recruits; launch trails, impact shards, hit/hazard/boss shockwaves, transition scans, layered synthesized cues, restrained shake and reduced-motion support. | Milestone 5 complete |
 | Replayability | Seeded variation, character builds, perks, persistent high score, run/win history and five achievement badges. | Implemented foundation |
-| Mobile | Landscape touch direction pad, touch dash, responsive/safe-area HUD and automatic targeting retained. | Implemented; physical-device tuning remains |
+| Mobile | Pointer-owned multi-touch movement, touch dash, safe-area/dynamic-viewport compact HUD, portrait rotation gate, background input clearing and audio suspension/resume. Five landscape sizes plus 390 × 844 portrait pass Android-emulated Chromium validation. | M6 automated readiness complete; physical Android pending |
 | Analytics | Privacy-conscious local-first events for run, character, perk, event, Chaos, hazard, boss, completion/failure and replay. | Implemented |
-| Testing | Thirty-five deterministic simulation, content, boss-presentation, profile-store and animation-catalog tests across 6 files plus an expanded Chromium lifecycle smoke run. M3 balance evidence remains in `docs/M3_BALANCE_REPORT.md`; M4 evidence is in `docs/milestone4/`; M5 animation/game-feel evidence is in `docs/milestone5/`. | M5 complete; Review Gate 5 |
+| Testing | Thirty-five deterministic tests across 6 files, full desktop Chromium lifecycle regression, and a dedicated Android-emulation harness covering five landscape viewports, portrait gating, multi-touch, lifecycle/audio state, 324.10 simulated seconds, both recruits and the boss/results lifecycle. | M6 automated PASS; physical Android pending |
 
 ## Architecture after refactor
 
@@ -61,10 +61,10 @@ src/
 
 ## Remaining gaps and prioritized next sprint
 
-Development is stopped at Review Gate 5. None of the following work is authorized until ChatGPT explicitly approves progression:
+Development is stopped at Review Gate 6. None of the following work is authorized until the physical Android evidence is reviewed and ChatGPT explicitly approves progression:
 
-1. Any Milestone 6 feature or content work.
-2. Landscape touch-control tuning on low/mid-range Android hardware.
+1. Any Milestone 7 feature, content or deployment work.
+2. Physical validation on current Android Chrome, including touch, audible output, OS backgrounding, real FPS/thermal behavior, both recruits and the complete boss/results lifecycle.
 3. Managed Chromium provisioning for browser smoke tests in CI.
 4. Vercel GitHub integration for preview and production deployments.
 5. Optional challenge modifiers or cosmetic unlock selection after retention data is available.
@@ -77,4 +77,5 @@ pnpm test
 pnpm build
 # With the Vite dev server running on port 4173:
 pnpm test:browser
+pnpm test:mobile
 ```

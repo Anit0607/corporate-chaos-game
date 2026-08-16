@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit --pretty false",
     "test": "vitest run",
     "test:browser": "node scripts/browser-smoke.mjs",
+    "test:mobile": "node scripts/mobile-readiness.mjs",
     "test:watch": "vitest"
   },
   "description": "Corporate Chaos V2: a replayable workplace-comedy survival game with distinct recruits, corporate events and a final boss.",

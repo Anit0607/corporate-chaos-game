@@ -73,9 +73,17 @@ class Soundboard {
     return this.muted;
   }
 
+  get contextState(): AudioContextState | 'uninitialized' {
+    return this.context?.state ?? 'uninitialized';
+  }
+
   unlock(): void {
     if (!this.context) this.context = new AudioContext();
     void this.context.resume();
+  }
+
+  suspend(): void {
+    if (this.context?.state === 'running') void this.context.suspend();
   }
 
   play(kind: SoundKind): void {

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { soundboard } from './audio/Soundboard';
 import { analytics } from './game/analytics/analytics';
 import { BootScene } from './phaser/scenes/BootScene';
 import { ShiftScene } from './phaser/scenes/ShiftScene';
@@ -16,6 +17,7 @@ declare global {
       primeBossAttack: () => void;
       clockOut: () => void;
       spawnContactHazard: () => void;
+      audioState: () => { muted: boolean; contextState: AudioContextState | 'uninitialized' };
     };
   }
 }
@@ -65,5 +67,6 @@ if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('e2e'
     primeBossAttack: () => shiftScene().integrationPrimeBossAttack(),
     clockOut: () => shiftScene().integrationClockOut(),
     spawnContactHazard: () => shiftScene().integrationSpawnContactHazard(),
+    audioState: () => ({ muted: soundboard.isMuted, contextState: soundboard.contextState }),
   });
 }

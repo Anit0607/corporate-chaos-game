@@ -101,6 +101,10 @@ export class PlayerController {
     return characterAnimationKey(this.characterTexture, this.currentVisualState);
   }
 
+  get touchVector(): Readonly<{ x: number; y: number }> {
+    return { x: this.touchX, y: this.touchY };
+  }
+
   playAttack(time: number): void {
     this.attackUntil = Math.max(this.attackUntil, time + 150);
     if (!this.isDashing && time >= this.hurtUntil) this.setVisualState('attack', true);

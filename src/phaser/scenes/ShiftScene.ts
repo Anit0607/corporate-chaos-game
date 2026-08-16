@@ -69,6 +69,8 @@ export interface ShiftSceneIntegrationSnapshot {
     visualState: string;
     facingX: number;
     facingY: number;
+    touchX: number;
+    touchY: number;
     dashing: boolean;
     dashReady: boolean;
   };
@@ -93,6 +95,13 @@ export interface ShiftSceneIntegrationSnapshot {
     bossPhase: number;
   };
   activeEntities: { hazards: number; projectiles: number; coins: number; effects: number; timers: number };
+  performance: {
+    sampledFrames: number;
+    averageFrameMs: number;
+    maximumFrameMs: number;
+    framesOver33Ms: number;
+    actualFps: number;
+  };
   hazardActors: Array<{ kind: string; x: number; y: number }>;
   bossPresentation: {
     introActive: boolean;
@@ -135,6 +144,10 @@ export class ShiftScene extends Phaser.Scene {
   private bossAura: Phaser.GameObjects.Arc | null = null;
   private gameplayTime = 0;
   private balanceRate = 1;
+  private sampledFrames = 0;
+  private totalFrameMs = 0;
+  private maximumFrameMs = 0;
+  private framesOver33Ms = 0;
   private runTelemetry = createRunTelemetry();
   private chaosOverlay!: Phaser.GameObjects.Rectangle;
   private officeGlow!: Phaser.GameObjects.Rectangle;
@@ -177,8 +190,17 @@ export class ShiftScene extends Phaser.Scene {
     const pauseOnFocusLoss = () => {
       if (this.running && !this.manuallyPaused && !this.perkPaused) this.setManualPause(true);
     };
+    const pauseWhenHidden = () => {
+      if (document.hidden) pauseOnFocusLoss();
+    };
     window.addEventListener('blur', pauseOnFocusLoss);
-    this.unsubscribe.push(() => window.removeEventListener('blur', pauseOnFocusLoss));
+    window.addEventListener('pagehide', pauseOnFocusLoss);
+    document.addEventListener('visibilitychange', pauseWhenHidden);
+    this.unsubscribe.push(
+      () => window.removeEventListener('blur', pauseOnFocusLoss),
+      () => window.removeEventListener('pagehide', pauseOnFocusLoss),
+      () => document.removeEventListener('visibilitychange', pauseWhenHidden),
+    );
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdownScene, this);
   }
 
@@ -190,6 +212,11 @@ export class ShiftScene extends Phaser.Scene {
       return;
     }
     if (this.manuallyPaused || this.perkPaused) return;
+
+    this.sampledFrames += 1;
+    this.totalFrameMs += delta;
+    this.maximumFrameMs = Math.max(this.maximumFrameMs, delta);
+    if (delta > 33.34) this.framesOver33Ms += 1;
 
     const scaledDelta = delta * this.balanceRate;
     this.gameplayTime += scaledDelta;
@@ -251,6 +278,9 @@ export class ShiftScene extends Phaser.Scene {
       }),
       gameBus.on('ui:briefing-complete', () => this.startRun()),
       gameBus.on('ui:pause-toggle', () => this.togglePause()),
+      gameBus.on('ui:pause-request', () => {
+        if (this.running && !this.manuallyPaused && !this.perkPaused) this.setManualPause(true);
+      }),
       gameBus.on('ui:resume', () => this.setManualPause(false)),
       gameBus.on('ui:restart', () => {
         analytics.capture('replay_clicked', { character: this.selectedCharacter });
@@ -312,6 +342,8 @@ export class ShiftScene extends Phaser.Scene {
         visualState: this.playerController?.visualState ?? 'idle',
         facingX: this.playerController?.facing.x ?? 1,
         facingY: this.playerController?.facing.y ?? 0,
+        touchX: this.playerController?.touchVector.x ?? 0,
+        touchY: this.playerController?.touchVector.y ?? 0,
         dashing: this.playerController?.isDashing ?? false,
         dashReady: this.playerController?.dashReady ?? false,
       },
@@ -341,6 +373,13 @@ export class ShiftScene extends Phaser.Scene {
         coins: this.coins?.countActive(true) ?? 0,
         effects: this.effects?.activeCount ?? 0,
         timers: this.runTimers.size,
+      },
+      performance: {
+        sampledFrames: this.sampledFrames,
+        averageFrameMs: this.sampledFrames > 0 ? this.totalFrameMs / this.sampledFrames : 0,
+        maximumFrameMs: this.maximumFrameMs,
+        framesOver33Ms: this.framesOver33Ms,
+        actualFps: this.game?.loop?.actualFps ?? 0,
       },
       hazardActors: (this.hazards?.getChildren() ?? [])
         .map((child) => child as Phaser.Physics.Arcade.Sprite)
@@ -455,6 +494,10 @@ export class ShiftScene extends Phaser.Scene {
     this.lastHudAt = 0;
     this.lastBossPatternAt = 0;
     this.lastDashTrailAt = 0;
+    this.sampledFrames = 0;
+    this.totalFrameMs = 0;
+    this.maximumFrameMs = 0;
+    this.framesOver33Ms = 0;
     this.bossIntroUntil = 0;
     this.pendingBossAttack = null;
     this.bossDefeatPlaying = false;

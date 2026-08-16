@@ -14,11 +14,14 @@ export class GameUI {
   private bossAnnouncementTimer = 0;
   private bossWarningTimer = 0;
   private readonly touchDirections = new Set<string>();
+  private readonly touchPointers = new Map<number, string>();
+  private readonly portraitQuery = window.matchMedia('(orientation: portrait)');
 
   constructor(root: HTMLElement) {
     this.root = root;
     this.root.innerHTML = this.template();
     this.bindControls();
+    this.bindMobileLifecycle();
     this.bindGameEvents();
     this.showOnly('menu-screen');
     this.updateMuteButton(soundboard.isMuted);
@@ -30,6 +33,12 @@ export class GameUI {
       <main class="game-shell" aria-label="Corporate Chaos game">
         <div id="game-canvas" class="game-canvas" aria-label="Game playfield"></div>
         <div class="scanlines" aria-hidden="true"></div>
+        <aside id="orientation-gate" class="orientation-gate" aria-hidden="true">
+          <span class="orientation-phone" aria-hidden="true"></span>
+          <p class="eyebrow">LANDSCAPE REQUIRED</p>
+          <strong>Rotate your device</strong>
+          <small>Corporate survival needs a wider desk.</small>
+        </aside>
 
         <section id="menu-screen" class="screen menu-screen is-visible" aria-labelledby="game-title">
           <div class="menu-shade"></div>
@@ -227,7 +236,10 @@ export class GameUI {
     this.byId('how-button').addEventListener('click', () => this.toggleHow(true));
     this.byId('how-close').addEventListener('click', () => this.toggleHow(false));
     this.byId('pause-button').addEventListener('click', () => gameBus.emit('ui:pause-toggle', undefined));
-    this.byId('resume-button').addEventListener('click', () => gameBus.emit('ui:resume', undefined));
+    this.byId('resume-button').addEventListener('click', () => {
+      soundboard.unlock();
+      gameBus.emit('ui:resume', undefined);
+    });
     this.byId('pause-menu-button').addEventListener('click', () => gameBus.emit('ui:menu', undefined));
     this.byId('replay-button').addEventListener('click', () => gameBus.emit('ui:restart', undefined));
     this.byId('result-menu-button').addEventListener('click', () => gameBus.emit('ui:menu', undefined));
@@ -241,23 +253,52 @@ export class GameUI {
       const direction = button.dataset.move!;
       const press = (event: PointerEvent) => {
         event.preventDefault();
-        this.touchDirections.add(direction);
-        this.emitTouchVector();
+        this.touchPointers.set(event.pointerId, direction);
+        try {
+          button.setPointerCapture(event.pointerId);
+        } catch {
+          // Synthetic test events and older WebViews may not expose pointer capture.
+        }
+        this.syncTouchDirections();
       };
       const release = (event: PointerEvent) => {
         event.preventDefault();
-        this.touchDirections.delete(direction);
-        this.emitTouchVector();
+        this.touchPointers.delete(event.pointerId);
+        this.syncTouchDirections();
       };
       button.addEventListener('pointerdown', press);
       button.addEventListener('pointerup', release);
       button.addEventListener('pointercancel', release);
       button.addEventListener('pointerleave', release);
+      button.addEventListener('lostpointercapture', release);
     });
     this.byId('touch-dash').addEventListener('pointerdown', (event) => {
       event.preventDefault();
       gameBus.emit('ui:dash', undefined);
     });
+  }
+
+  private bindMobileLifecycle(): void {
+    const suspendInputAndAudio = () => {
+      this.resetTouchInput();
+      soundboard.suspend();
+    };
+    window.addEventListener('blur', suspendInputAndAudio);
+    window.addEventListener('pagehide', suspendInputAndAudio);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) suspendInputAndAudio();
+    });
+    const updateOrientation = (portrait: boolean) => {
+      const gate = this.byId('orientation-gate');
+      gate.setAttribute('aria-hidden', String(!portrait));
+      gate.dataset.active = String(portrait);
+      if (portrait) {
+        this.resetTouchInput();
+        gameBus.emit('ui:pause-request', undefined);
+      }
+    };
+    updateOrientation(this.portraitQuery.matches);
+    this.portraitQuery.addEventListener('change', (event) => updateOrientation(event.matches));
   }
 
   private bindGameEvents(): void {
@@ -428,8 +469,7 @@ export class GameUI {
       this.byId('boss-hud').classList.remove('is-visible');
       this.byId('boss-announcement').classList.remove('is-visible');
       this.byId('boss-warning').classList.remove('is-visible');
-      this.touchDirections.clear();
-      this.emitTouchVector();
+      this.resetTouchInput();
     }
   }
 
@@ -456,6 +496,18 @@ export class GameUI {
       x: Number(this.touchDirections.has('right')) - Number(this.touchDirections.has('left')),
       y: Number(this.touchDirections.has('down')) - Number(this.touchDirections.has('up')),
     });
+  }
+
+  private syncTouchDirections(): void {
+    this.touchDirections.clear();
+    this.touchPointers.forEach((direction) => this.touchDirections.add(direction));
+    this.emitTouchVector();
+  }
+
+  private resetTouchInput(): void {
+    this.touchPointers.clear();
+    this.touchDirections.clear();
+    this.emitTouchVector();
   }
 
   private updateMuteButton(muted: boolean): void {
